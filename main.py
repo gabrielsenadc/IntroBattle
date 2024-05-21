@@ -14,6 +14,34 @@ cor_jogador = (255, 255, 255)  # Branco
 
 altura_quadrado = 200
 largura_quadrado = 200
+class Seta():
+    def __init__(self):
+        self.image = pygame.image.load("./imagens/seta.png")
+        self.image = pygame.transform.scale_by(self.image, 0.9)
+        self.rect = self.image.get_rect()
+
+        self.rect.x = (largura / 2) - 100
+        self.rect.y = 100
+
+        y = self.image.get_height()
+        self.image = pygame.transform.scale_by(self.image, 50/y)
+
+    def atualiza(self, dir):
+        if dir == "l":
+            if self.rect.x >= ((largura / 2) - 100):
+                self.rect.x -= 250
+        if dir == "r":
+            if self.rect.x < ((largura / 2) + 150):
+                self.rect.x += 250
+        if dir == "d":
+            self.rect.y += 250
+        if dir == "u":
+            self.rect.y -= 250
+
+    def desenha(self):
+        janela.blit(self.image, self.rect)
+
+
 class Quadrado(pygame.sprite.Sprite):
     def __init__(self, x, y, nome):
         super().__init__()
@@ -21,22 +49,27 @@ class Quadrado(pygame.sprite.Sprite):
         self.rect = pygame.Rect((x, y), self.tamanho)
         self.nome = nome
         self.image = pygame.image.load(f"./imagens/{nome}.png" )
+        self.rect_image = self.image.get_rect()
 
-        y = self.image.get_height()
-        self.image = pygame.transform.scale_by(self.image, 200/y)
+        h = self.image.get_height()
+        self.image = pygame.transform.scale_by(self.image, 200/h)
+
+        w = self.image.get_width()
+        self.x = (200 - w) / 2
+        self.rect_image.y = y
+        self.rect_image.x = self.rect.x + self.x
 
     def desenhar_quadrado(self, tela):
         pygame.draw.rect(tela, cor_jogador, self.rect)
-        fonte = pygame.font.Font(None, 20)
-        texto = fonte.render(self.nome, True, cor_fundo)
-        janela.blit(self.image, self.rect)
-
+        janela.blit(self.image, self.rect_image)
 
     def atualizar(self, x, y):
-        self.rect.x = x
+        self.rect.x = x 
         self.rect.y = y
 
-# Criar o sprite do jogador
+        self.rect_image.x = x + self.x
+        self.rect_image.y = y
+
 quadrados = pygame.sprite.Group()
 quadrado1 = Quadrado((largura / 2) - 350, 150, "Travis Kelce")
 quadrado2 = Quadrado((largura / 2) - 100, 150, "Taylor Swift")
@@ -49,6 +82,8 @@ quadrados.add(quadrado2)
 quadrados.add(quadrado3)
 quadrados.add(quadrado4)
 quadrados.add(quadrado5)
+
+seta = Seta()
 
 def verificaRuivo(evento, flag):
     if evento.type == pygame.KEYDOWN:
@@ -80,6 +115,12 @@ while executando:
         if evento.type == pygame.QUIT:
             executando = False
         flag = verificaRuivo(evento, flag)
+        if evento.type == pygame.KEYDOWN:
+            if evento.key == pygame.K_LEFT:
+                seta.atualiza("l")
+            elif evento.key == pygame.K_RIGHT:
+                seta.atualiza("r")
+            
 
     # Preencher a janela com a cor de fundo
     janela.fill(cor_fundo)
@@ -87,7 +128,7 @@ while executando:
     # Atualizar o jogador
     for quadrado in quadrados:
         quadrado.desenhar_quadrado(janela)
-
+    seta.desenha()
 
     # Atualizar a exibição
     pygame.display.flip()
