@@ -6,15 +6,43 @@ pygame.init()
 largura = 1024 
 altura = 768
 janela = pygame.display.set_mode((largura, altura))
-pygame.display.set_caption("Pega Pega")
+pygame.display.set_caption("The Ex Tour")
 
 
 cor_fundo = (0, 0, 0)        # Preto
 cor_jogador = (255, 255, 255)  # Branco
 
-altura_quadrado = 200
-largura_quadrado = 200
+altura_selecao = 200
+largura_selecao = 200
 altura_seta = 40
+
+class Personagem(pygame.sprite.Sprite):
+    def __init__(self, nome, n, dano, defesa, vida, velocidade):
+        super().__init__()
+        self.image = pygame.image.load(f"./imagens/{nome}.png" )
+        self.rect = self.image.get_rect()
+
+        h = self.image.get_height()
+        self.image = pygame.transform.scale_by(self.image, 225/h)
+
+        if(n == 1): 
+            self.rect.x = 50
+            self.rect.y = 50
+        if(n == 2):
+            self.rect.x = 250
+            self.rect.y = 175
+        if(n == 3):
+            self.rect.x = 50
+            self.rect.y = 325
+
+        self.dano = dano
+        self.defesa = defesa
+        self.vida = vida
+        self.velocidade = velocidade
+
+    def desenhar(self):
+        janela.blit(self.image, self.rect)
+
 class Seta():
     def __init__(self, posicoes):
         self.image = pygame.image.load("./imagens/seta.png")
@@ -23,7 +51,7 @@ class Seta():
         y = self.image.get_height()
         self.image = pygame.transform.scale_by(self.image, altura_seta/y)
 
-        self.x = (largura_quadrado - self.image.get_width()) / 2
+        self.x = (largura_selecao - self.image.get_width()) / 2
 
         self.rect.x = posicoes["Taylor Swift"]["x"] + self.x
         self.rect.y = posicoes["Taylor Swift"]["y"] - altura_seta
@@ -57,33 +85,62 @@ class Seta():
     def desenha(self):
         janela.blit(self.image, self.rect)
 
-class Quadrado(pygame.sprite.Sprite):
+    def get_personagem(self):
+        if(self.rect.x - self.x == posicoes["Taylor Swift"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Swift"]["y"]):
+            return "Taylor Swift"
+        if(self.rect.x - self.x == posicoes["Taylor Launter"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Launter"]["y"]):
+            return "Taylor Launter"
+        if(self.rect.x - self.x == posicoes["Travis Kelce"]["x"] and self.rect.y + altura_seta == posicoes["Travis Kelce"]["y"]):
+            return "Travis Kelce"
+        if(self.rect.x - self.x == posicoes["Harry Styles"]["x"] and self.rect.y + altura_seta == posicoes["Harry Styles"]["y"]):
+            return "Harry Styles"
+        if(self.rect.x - self.x == posicoes["Tom Hiddleston"]["x"] and self.rect.y + altura_seta == posicoes["Tom Hiddleston"]["y"]):
+            return "Tom Hiddleston"
+        if(self.rect.x - self.x == posicoes["Ed Sheeran"]["x"] and self.rect.y + altura_seta == posicoes["Ed Sheeran"]["y"]):
+            return "Ed Sheeran"
+        return "ninguem"
+
+class Selecao(pygame.sprite.Sprite):
     def __init__(self, x, y, nome):
         super().__init__()
-        self.tamanho = (largura_quadrado, altura_quadrado)
+        self.tamanho = (largura_selecao, altura_selecao)
         self.rect = pygame.Rect((x, y), self.tamanho)
         self.nome = nome
         self.image = pygame.image.load(f"./imagens/{nome}.png" )
         self.rect_image = self.image.get_rect()
 
         h = self.image.get_height()
-        self.image = pygame.transform.scale_by(self.image, 200/h)
+        self.image = pygame.transform.scale_by(self.image, 170/h)
 
         w = self.image.get_width()
-        self.x = (200 - w) / 2
+        self.imagem_shift = (200 - w) / 2
         self.rect_image.y = y
-        self.rect_image.x = self.rect.x + self.x
+        self.rect_image.x = self.rect.x + self.imagem_shift
 
-    def desenhar_quadrado(self, tela):
+        fonte = pygame.font.Font(None, 36)
+        self.texto = fonte.render(nome, True, cor_fundo)
+        self.rect_texto = self.texto.get_rect()
+        self.rect_texto.y = self.rect_image.y + 170
+        
+        w = self.texto.get_width()
+        self.texto_shift = (200 - w) / 2
+        self.rect_texto.x = self.rect.x + self.texto_shift
+    
+
+    def desenhar_selecao(self, tela):
         pygame.draw.rect(tela, cor_jogador, self.rect)
         janela.blit(self.image, self.rect_image)
+        janela.blit(self.texto, (self.rect_texto.x ,self.rect_texto.y))
 
     def atualizar(self, x, y):
         self.rect.x = x 
         self.rect.y = y
 
-        self.rect_image.x = x + self.x
+        self.rect_image.x = x + self.imagem_shift
         self.rect_image.y = y
+
+        self.rect_texto.x = x + self.texto_shift
+        self.rect_texto.y = y + 170
 
 posicoes = {"Travis Kelce": {"x": (largura / 2) - 350, "y": 150},
             "Taylor Swift": {"x": (largura / 2) - 100, "y": 150},
@@ -92,18 +149,18 @@ posicoes = {"Travis Kelce": {"x": (largura / 2) - 350, "y": 150},
             "Tom Hiddleston": {"x": (largura / 2) + 25, "y": 400},
             "Ed Sheeran": {"x": (largura / 2) + 150, "y": 400}}
 
-quadrados = pygame.sprite.Group()
-quadrado1 = Quadrado(posicoes["Travis Kelce"]["x"], posicoes["Travis Kelce"]["y"], "Travis Kelce")
-quadrado2 = Quadrado(posicoes["Taylor Swift"]["x"], posicoes["Taylor Swift"]["y"], "Taylor Swift")
-quadrado3 = Quadrado(posicoes["Taylor Launter"]["x"], posicoes["Taylor Launter"]["y"], "Taylor Launter")
-quadrado4 = Quadrado(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"], "Harry Styles")
-quadrado5 = Quadrado(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"], "Tom Hiddleston")
+selecoes = pygame.sprite.Group()
+selecao1 = Selecao(posicoes["Travis Kelce"]["x"], posicoes["Travis Kelce"]["y"], "Travis Kelce")
+selecao2 = Selecao(posicoes["Taylor Swift"]["x"], posicoes["Taylor Swift"]["y"], "Taylor Swift")
+selecao3 = Selecao(posicoes["Taylor Launter"]["x"], posicoes["Taylor Launter"]["y"], "Taylor Launter")
+selecao4 = Selecao(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"], "Harry Styles")
+selecao5 = Selecao(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"], "Tom Hiddleston")
 
-quadrados.add(quadrado1)
-quadrados.add(quadrado2)
-quadrados.add(quadrado3)
-quadrados.add(quadrado4)
-quadrados.add(quadrado5)
+selecoes.add(selecao1)
+selecoes.add(selecao2)
+selecoes.add(selecao3)
+selecoes.add(selecao4)
+selecoes.add(selecao5)
 
 seta = Seta(posicoes)
 
@@ -118,17 +175,61 @@ def verificaRuivo(evento, flag):
         elif (evento.key == 118 and flag == 3):
             flag = 4
         elif (evento.key == 111 and flag == 4):
-            quadrado6 = Quadrado(posicoes["Ed Sheeran"]["x"], posicoes["Ed Sheeran"]["y"], "Ed Sheeran")
-            quadrados.add(quadrado6)
+            selecao6 = Selecao(posicoes["Ed Sheeran"]["x"], posicoes["Ed Sheeran"]["y"], "Ed Sheeran")
+            selecoes.add(selecao6)
             posicoes["Harry Styles"]["x"] = (largura / 2) - 350
             posicoes["Tom Hiddleston"]["x"] = (largura / 2) - 100
-            quadrado4.atualizar(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"])
-            quadrado5.atualizar(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"])
+            selecao4.atualizar(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"])
+            selecao5.atualizar(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"])
             flag = 5
         else:
             flag = 0
 
     return flag
+
+personagens = pygame.sprite.Group()
+
+def seleciona_personagem(n, seta, personagens):
+    dano = 0
+    defesa = 0
+    vida = 0
+    velocidade = 0
+    if(seta.get_personagem() == "Taylor Swift"):
+        dano = 2
+        defesa = 2
+        vida = 2
+        velocidade = 2
+    if(seta.get_personagem() == "Taylor Launter"):
+        dano = 2
+        defesa = 2
+        vida = 2
+        velocidade = 2
+    if(seta.get_personagem() == "Harry Styles"):
+        dano = 2
+        defesa = 2
+        vida = 2
+        velocidade = 2
+    if(seta.get_personagem() == "Travis Kelce"):
+        dano = 2
+        defesa = 2
+        vida = 2
+        velocidade = 2
+    if(seta.get_personagem() == "Tom Hiddleston"):
+        dano = 2
+        defesa = 2
+        vida = 2
+        velocidade = 2
+    if(seta.get_personagem() == "Ed Sheeran"):
+        dano = 2
+        defesa = 2
+        vida = 2
+        velocidade = 2
+
+    
+    personagem = Personagem(seta.get_personagem(), n, dano, defesa, vida, velocidade)
+    personagens.add(personagem)
+   
+    
 
 
 # Loop do jogo
@@ -136,6 +237,7 @@ executando = True
 clock = pygame.time.Clock()
 flag = 0
 ruivo = 0
+n = 0
 while executando:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -150,6 +252,10 @@ while executando:
                 seta.atualiza("d", ruivo, posicoes)
             elif evento.key == pygame.K_UP:
                 seta.atualiza("u", ruivo, posicoes)
+            elif evento.key == 122:
+                n += 1
+                seleciona_personagem(n, seta, personagens)
+                
             
 
     if(flag == 5): 
@@ -160,9 +266,14 @@ while executando:
     janela.fill(cor_fundo)
 
     # Atualizar o jogador
-    for quadrado in quadrados:
-        quadrado.desenhar_quadrado(janela)
-    seta.desenha()
+    if(n < 3):
+        for selecao in selecoes:
+            selecao.desenhar_selecao(janela)
+        seta.desenha()
+    
+    if(n >= 3):
+        for personagem in personagens:
+            personagem.desenhar()
 
     # Atualizar a exibição
     pygame.display.flip()
