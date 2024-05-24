@@ -4,6 +4,14 @@ largura = 1024
 altura = 768
 
 class Personagem(pygame.sprite.Sprite):
+    """
+    Propriedades:
+    image: imagem do personagem
+    rect: retangulo que o personagem se encontra
+    x: posicao do x do personagem
+    y: posicao do y do personagem
+    """
+
     def __init__(self, nome, n):
         super().__init__()
         self.image = pygame.image.load(f"./imagens/{nome}.png" )
@@ -35,7 +43,8 @@ class TomHiddleston(Personagem):
 
         self.dano = 30
         self.defesa = 15
-        self.vida = 200
+        self.vida_max = 200
+        self.vida_atual = 200
         self.velocidade = 25
 
     def animacao_habilidade(self, counter):
@@ -67,7 +76,8 @@ class TaylorLautner(Personagem):
 
         self.dano = 40
         self.defesa = 20
-        self.vida = 225
+        self.vida_max = 225
+        self.vida_atual = 225
         self.velocidade = 20
 
     def animacao_habilidade(self, counter):
@@ -93,7 +103,8 @@ class TaylorSwift(Personagem):
 
         self.dano = 2
         self.defesa = 2
-        self.vida = 2
+        self.vida_max = 2
+        self.vida_atual = 2
         self.velocidade = 2
 
     def animacao_habilidade(self, counter):
@@ -108,7 +119,8 @@ class TravisKelce(Personagem):
 
         self.dano = 15
         self.defesa = 40
-        self.vida = 300
+        self.vida_max = 300
+        self.vida_atual = 300
         self.velocidade = 5
 
     def animacao_habilidade(self, counter):
@@ -123,7 +135,8 @@ class EdSheeran(Personagem):
 
         self.dano = 25
         self.defesa = 10
-        self.vida = 120
+        self.vida_max = 120
+        self.vida_atual = 120
         self.velocidade = 15
 
     def animacao_habilidade(self, counter):
@@ -138,7 +151,8 @@ class HarryStyles(Personagem):
 
         self.dano = 35
         self.defesa = 15
-        self.vida = 150
+        self.vida_max = 150
+        self.vida_atual = 150
         self.velocidade = 10
 
     def animacao_habilidade(self, counter):
