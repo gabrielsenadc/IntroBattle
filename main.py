@@ -16,32 +16,7 @@ altura_selecao = 200
 largura_selecao = 200
 altura_seta = 40
 
-class Personagem(pygame.sprite.Sprite):
-    def __init__(self, nome, n, dano, defesa, vida, velocidade):
-        super().__init__()
-        self.image = pygame.image.load(f"./imagens/{nome}.png" )
-        self.rect = self.image.get_rect()
-
-        h = self.image.get_height()
-        self.image = pygame.transform.scale_by(self.image, 225/h)
-
-        if(n == 1): 
-            self.rect.x = 50
-            self.rect.y = 50
-        if(n == 2):
-            self.rect.x = 250
-            self.rect.y = 175
-        if(n == 3):
-            self.rect.x = 50
-            self.rect.y = 325
-
-        self.dano = dano
-        self.defesa = defesa
-        self.vida = vida
-        self.velocidade = velocidade
-
-    def desenhar(self):
-        janela.blit(self.image, self.rect)
+from personagens import *
 
 class Seta():
     def __init__(self, posicoes):
@@ -63,15 +38,15 @@ class Seta():
                 self.rect.x -= 250
 
         if dir == "r":
-            if self.rect.x < posicoes["Taylor Launter"]["x"]:
+            if self.rect.x < posicoes["Taylor Lautner"]["x"]:
                 if(ruivo == 0 and self.rect.x < posicoes["Tom Hiddleston"]["x"]): self.rect.x += 250
                 if(ruivo == 1): self.rect.x += 250
 
         if dir == "d":
             if(self.rect.y <= posicoes["Taylor Swift"]["y"]):
                 self.rect.y += 250
-                if(ruivo == 0 and self.rect.x != posicoes["Taylor Launter"]["x"] + self.x): self.rect.x += 125
-                if(ruivo == 0 and self.rect.x == posicoes["Taylor Launter"]["x"] + self.x): self.rect.x -= 125
+                if(ruivo == 0 and self.rect.x != posicoes["Taylor Lautner"]["x"] + self.x): self.rect.x += 125
+                if(ruivo == 0 and self.rect.x == posicoes["Taylor Lautner"]["x"] + self.x): self.rect.x -= 125
 
         if dir == "u":
             if(self.rect.y >= posicoes["Harry Styles"]["y"] - altura_seta):
@@ -88,8 +63,8 @@ class Seta():
     def get_personagem(self):
         if(self.rect.x - self.x == posicoes["Taylor Swift"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Swift"]["y"]):
             return "Taylor Swift"
-        if(self.rect.x - self.x == posicoes["Taylor Launter"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Launter"]["y"]):
-            return "Taylor Launter"
+        if(self.rect.x - self.x == posicoes["Taylor Lautner"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Lautner"]["y"]):
+            return "Taylor Lautner"
         if(self.rect.x - self.x == posicoes["Travis Kelce"]["x"] and self.rect.y + altura_seta == posicoes["Travis Kelce"]["y"]):
             return "Travis Kelce"
         if(self.rect.x - self.x == posicoes["Harry Styles"]["x"] and self.rect.y + altura_seta == posicoes["Harry Styles"]["y"]):
@@ -144,7 +119,7 @@ class Selecao(pygame.sprite.Sprite):
 
 posicoes = {"Travis Kelce": {"x": (largura / 2) - 350, "y": 150},
             "Taylor Swift": {"x": (largura / 2) - 100, "y": 150},
-            "Taylor Launter": {"x": (largura / 2) + 150, "y": 150},
+            "Taylor Lautner": {"x": (largura / 2) + 150, "y": 150},
             "Harry Styles": {"x": (largura / 2) - 225, "y": 400},
             "Tom Hiddleston": {"x": (largura / 2) + 25, "y": 400},
             "Ed Sheeran": {"x": (largura / 2) + 150, "y": 400}}
@@ -152,7 +127,7 @@ posicoes = {"Travis Kelce": {"x": (largura / 2) - 350, "y": 150},
 selecoes = pygame.sprite.Group()
 selecao1 = Selecao(posicoes["Travis Kelce"]["x"], posicoes["Travis Kelce"]["y"], "Travis Kelce")
 selecao2 = Selecao(posicoes["Taylor Swift"]["x"], posicoes["Taylor Swift"]["y"], "Taylor Swift")
-selecao3 = Selecao(posicoes["Taylor Launter"]["x"], posicoes["Taylor Launter"]["y"], "Taylor Launter")
+selecao3 = Selecao(posicoes["Taylor Lautner"]["x"], posicoes["Taylor Lautner"]["y"], "Taylor Lautner")
 selecao4 = Selecao(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"], "Harry Styles")
 selecao5 = Selecao(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"], "Tom Hiddleston")
 
@@ -195,38 +170,19 @@ def seleciona_personagem(n, seta, personagens):
     vida = 0
     velocidade = 0
     if(seta.get_personagem() == "Taylor Swift"):
-        dano = 2
-        defesa = 2
-        vida = 2
-        velocidade = 2
-    if(seta.get_personagem() == "Taylor Launter"):
-        dano = 2
-        defesa = 2
-        vida = 2
-        velocidade = 2
+        personagem = TaylorSwift(seta.get_personagem(), n)
+    if(seta.get_personagem() == "Taylor Lautner"):
+        personagem = TaylorLautner(seta.get_personagem(), n)
     if(seta.get_personagem() == "Harry Styles"):
-        dano = 2
-        defesa = 2
-        vida = 2
-        velocidade = 2
+        personagem = HarryStyles(seta.get_personagem(), n)
     if(seta.get_personagem() == "Travis Kelce"):
-        dano = 2
-        defesa = 2
-        vida = 2
-        velocidade = 2
+        personagem = TravisKelce(seta.get_personagem(), n)
     if(seta.get_personagem() == "Tom Hiddleston"):
-        dano = 2
-        defesa = 2
-        vida = 2
-        velocidade = 2
+        personagem = TomHiddleston(seta.get_personagem(), n)
     if(seta.get_personagem() == "Ed Sheeran"):
-        dano = 2
-        defesa = 2
-        vida = 2
-        velocidade = 2
+        personagem = EdSheeran(seta.get_personagem(), n)
 
     
-    personagem = Personagem(seta.get_personagem(), n, dano, defesa, vida, velocidade)
     personagens.add(personagem)
    
     
@@ -238,6 +194,8 @@ clock = pygame.time.Clock()
 flag = 0
 ruivo = 0
 n = 0
+counterH = 0
+counterA = 0
 while executando:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -255,8 +213,18 @@ while executando:
             elif evento.key == 122:
                 n += 1
                 seleciona_personagem(n, seta, personagens)
-                
-            
+            elif evento.key == pygame.K_a:
+                counterH = 1
+            elif evento.key == pygame.K_s:
+                counterA = 1
+
+    if(counterH > 0):           
+        for personagem in personagens:
+            counterH = personagem.animacao_habilidade(counterH)
+
+    if(counterA > 0):           
+        for personagem in personagens:
+            counterA = personagem.animacao_ataque(counterA)
 
     if(flag == 5): 
         ruivo = 1
@@ -273,7 +241,7 @@ while executando:
     
     if(n >= 3):
         for personagem in personagens:
-            personagem.desenhar()
+            personagem.desenhar(janela)
 
     # Atualizar a exibição
     pygame.display.flip()
