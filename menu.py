@@ -20,51 +20,6 @@ largura_selecao = 200
 altura_seta = 40
 
 
-def verifica_ruivo(evento, flag):
-    if evento.type == pygame.KEYDOWN:
-        if evento.key == 114:
-            flag = 1
-        elif (evento.key == 117 and flag == 1):
-            flag = 2
-        elif (evento.key == 105 and flag == 2):
-            flag = 3
-        elif (evento.key == 118 and flag == 3):
-            flag = 4
-        elif (evento.key == 111 and flag == 4):
-            flag = 5
-        else:
-            flag = 0
-
-    return flag
-
-def cria_EdSheeran(selecoes, posicoes):
-    selecao6 = Selecao(posicoes["Ed Sheeran"]["x"], posicoes["Ed Sheeran"]["y"], "Ed Sheeran")
-    selecoes.add(selecao6)
-    posicoes["Harry Styles"]["x"] = (largura / 2) - 350
-    posicoes["Tom Hiddleston"]["x"] = (largura / 2) - 100
-    selecao4.atualizar(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"])
-    selecao5.atualizar(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"])
-
-def seleciona_personagem(n, seta, personagens):
-    dano = 0
-    defesa = 0
-    vida = 0
-    velocidade = 0
-    if(seta.get_personagem() == "Taylor Swift"):
-        personagem = TaylorSwift(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Taylor Lautner"):
-        personagem = TaylorLautner(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Harry Styles"):
-        personagem = HarryStyles(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Travis Kelce"):
-        personagem = TravisKelce(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Tom Hiddleston"):
-        personagem = TomHiddleston(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Ed Sheeran"):
-        personagem = EdSheeran(seta.get_personagem(), n)
-
-    
-    personagens.add(personagem)
 
 
 class Seta():
@@ -114,18 +69,10 @@ class Seta():
         janela.blit(self.image, self.rect)
 
     def get_personagem(self):
-        if(self.rect.x - self.x == posicoes["Taylor Swift"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Swift"]["y"]):
-            return "Taylor Swift"
-        if(self.rect.x - self.x == posicoes["Taylor Lautner"]["x"] and self.rect.y + altura_seta == posicoes["Taylor Lautner"]["y"]):
-            return "Taylor Lautner"
-        if(self.rect.x - self.x == posicoes["Travis Kelce"]["x"] and self.rect.y + altura_seta == posicoes["Travis Kelce"]["y"]):
-            return "Travis Kelce"
-        if(self.rect.x - self.x == posicoes["Harry Styles"]["x"] and self.rect.y + altura_seta == posicoes["Harry Styles"]["y"]):
-            return "Harry Styles"
-        if(self.rect.x - self.x == posicoes["Tom Hiddleston"]["x"] and self.rect.y + altura_seta == posicoes["Tom Hiddleston"]["y"]):
-            return "Tom Hiddleston"
-        if(self.rect.x - self.x == posicoes["Ed Sheeran"]["x"] and self.rect.y + altura_seta == posicoes["Ed Sheeran"]["y"]):
-            return "Ed Sheeran"
+        for key in posicoes.keys():
+            if(self.rect.x - self.x == posicoes[key]["x"] and self.rect.y + altura_seta == posicoes[key]["y"]):
+                return key
+      
         return "ninguem"
 
 
@@ -187,3 +134,87 @@ selecoes.add(selecao2)
 selecoes.add(selecao3)
 selecoes.add(selecao4)
 selecoes.add(selecao5)
+
+def verifica_ruivo(evento, flag):
+    if evento.type == pygame.KEYDOWN:
+        if evento.key == 114:
+            flag = 1
+        elif (evento.key == 117 and flag == 1):
+            flag = 2
+        elif (evento.key == 105 and flag == 2):
+            flag = 3
+        elif (evento.key == 118 and flag == 3):
+            flag = 4
+        elif (evento.key == 111 and flag == 4):
+            flag = 5
+        else:
+            flag = 0
+
+    return flag
+
+def cria_EdSheeran(selecoes, posicoes):
+    selecao6 = Selecao(posicoes["Ed Sheeran"]["x"], posicoes["Ed Sheeran"]["y"], "Ed Sheeran")
+    selecoes.add(selecao6)
+    posicoes["Harry Styles"]["x"] = (largura / 2) - 350
+    posicoes["Tom Hiddleston"]["x"] = (largura / 2) - 100
+    selecao4.atualizar(posicoes["Harry Styles"]["x"], posicoes["Harry Styles"]["y"])
+    selecao5.atualizar(posicoes["Tom Hiddleston"]["x"], posicoes["Tom Hiddleston"]["y"])
+
+def seleciona_personagem(n, seta, personagens):
+    if(seta.get_personagem() == "Taylor Swift"):
+        personagem = TaylorSwift(seta.get_personagem(), n)
+    if(seta.get_personagem() == "Taylor Lautner"):
+        personagem = TaylorLautner(seta.get_personagem(), n)
+    if(seta.get_personagem() == "Harry Styles"):
+        personagem = HarryStyles(seta.get_personagem(), n)
+    if(seta.get_personagem() == "Travis Kelce"):
+        personagem = TravisKelce(seta.get_personagem(), n)
+    if(seta.get_personagem() == "Tom Hiddleston"):
+        personagem = TomHiddleston(seta.get_personagem(), n)
+    if(seta.get_personagem() == "Ed Sheeran"):
+        personagem = EdSheeran(seta.get_personagem(), n)
+ 
+    personagens.add(personagem)
+
+def desenha_menu(selecoes, seta, janela):
+    for selecao in selecoes:
+        selecao.desenha(janela)
+    seta.desenha(janela)
+
+def menu(personagens, janela, clock):
+    seta = Seta(posicoes)
+    ruivo = 0
+    num = 0
+    flag = 0
+    while num < 3:
+        for evento in pygame.event.get():
+            flag = verifica_ruivo(evento, flag)
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_LEFT:
+                    seta.atualiza("l", ruivo, posicoes)
+                elif evento.key == pygame.K_RIGHT:
+                    seta.atualiza("r", ruivo, posicoes)
+                elif evento.key == pygame.K_DOWN:
+                    seta.atualiza("d", ruivo, posicoes)
+                elif evento.key == pygame.K_UP:
+                    seta.atualiza("u", ruivo, posicoes)
+                elif evento.key == 122:
+                    num += 1
+                    seleciona_personagem(num, seta, personagens)
+        
+        if(flag == 5): 
+            cria_EdSheeran(selecoes, posicoes)
+            ruivo = 1
+            seta.atualiza_ruivo(posicoes)
+
+        # Preencher a janela com a cor de fundo
+        janela.fill((0, 0, 0))
+
+        # Atualizar o jogador
+        desenha_menu(selecoes, seta, janela)
+            
+        # Atualizar a exibição
+        pygame.display.flip()
+
+        # Definir a taxa de quadros
+        clock.tick(60)
