@@ -3,6 +3,12 @@ import pygame
 largura = 1024 
 altura = 768
 
+posicoes_jogo = {"personagem1": {"x": 50, "y": 50},
+                 "personagem2": {"x": 250, "y": 175},
+                 "personagem3": {"x": 50, "y": 325},
+                 "personagem4": {"x": 750, "y": 50},
+                 "personagem5": {"x": 750, "y": 325},}
+
 class Personagem(pygame.sprite.Sprite):
     """
     Propriedades:
@@ -10,42 +16,66 @@ class Personagem(pygame.sprite.Sprite):
     rect: retangulo que o personagem se encontra
     x: posicao do x do personagem
     y: posicao do y do personagem
+    dano: pontos de dano
+    defesa: pontos de defesa 
+    velocidade: pontos de velocidade
+    vida_max: pontos de vida máxima
+    vida_atual: pontos de vida atual
     """
 
-    def __init__(self, nome, n):
+    def __init__(self, nome, n, dano, defesa, vida, velocidade):
         super().__init__()
+        self.nome = nome
         self.image = pygame.image.load(f"./imagens/{nome}.png" )
         self.rect = self.image.get_rect()
 
         h = self.image.get_height()
         self.image = pygame.transform.scale_by(self.image, 225/h)
 
-        if(n == 1): 
-            self.x = 50
-            self.y = 50
-        if(n == 2):
-            self.x = 250
-            self.y = 175
-        if(n == 3):
-            self.x = 50
-            self.y = 325
+        personagem = f"personagem{n}"
+        for key in posicoes_jogo.keys():
+            if key == personagem:
+                self.x = self.rect.x = posicoes_jogo[key]["x"]
+                self.y = self.rect.y = posicoes_jogo[key]["y"]
 
-        self.rect.x = self.x
-        self.rect.y = self.y
-
+        self.dano = dano
+        self.defesa = defesa
+        self.vida_max = vida
+        self.vida_atual = vida
+        self.velocidade = velocidade
 
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
 
+    def ataque(self, inimigo):
+        dano = self.dano * (50 / (50 + inimigo.get_defesa()))
+        inimigo.recebe_dano(dano)
+
+    def aumenta_defesa(self, aumento):
+        self.defesa += aumento
+    
+    def recebe_dano(self, dano):
+        self.vida_atual -= dano
+
+    def recupera_vida(self, vida):
+        self.vida += vida
+    
+    def get_dano(self):
+        return self.dano
+    
+    def get_defesa(self):
+        return self.defesa
+    
+    def get_velocidade(self):
+        return self.velocidade
+    
+    def get_vida_atual(self):
+        return self.vida_atual
+    
+
 class TomHiddleston(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n)
-
-        self.dano = 30
-        self.defesa = 15
-        self.vida_max = 200
-        self.vida_atual = 200
-        self.velocidade = 25
+        super().__init__(nome, n, 30, 15, 200, 25)
 
     def animacao_habilidade(self, counter):
         if(counter == 1): 
@@ -63,7 +93,6 @@ class TomHiddleston(Personagem):
             h = self.image.get_height()
             self.image = pygame.transform.scale_by(self.image, 225/h)
             return 0
-        print(counter)
 
         return counter + 1
     
@@ -72,13 +101,7 @@ class TomHiddleston(Personagem):
 
 class TaylorLautner(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n)
-
-        self.dano = 40
-        self.defesa = 20
-        self.vida_max = 225
-        self.vida_atual = 225
-        self.velocidade = 20
+        super().__init__(nome, n, 40, 20, 225, 20)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -99,13 +122,7 @@ class TaylorLautner(Personagem):
 
 class TaylorSwift(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n)
-
-        self.dano = 2
-        self.defesa = 2
-        self.vida_max = 2
-        self.vida_atual = 2
-        self.velocidade = 2
+        super().__init__(nome, n, 2, 2, 2, 2)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -115,13 +132,7 @@ class TaylorSwift(Personagem):
 
 class TravisKelce(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n)
-
-        self.dano = 15
-        self.defesa = 40
-        self.vida_max = 300
-        self.vida_atual = 300
-        self.velocidade = 5
+        super().__init__(nome, n, 15, 40, 300, 5)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -131,13 +142,7 @@ class TravisKelce(Personagem):
 
 class EdSheeran(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n)
-
-        self.dano = 25
-        self.defesa = 10
-        self.vida_max = 120
-        self.vida_atual = 120
-        self.velocidade = 15
+        super().__init__(nome, n, 25, 10, 120, 15)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -147,13 +152,7 @@ class EdSheeran(Personagem):
 
 class HarryStyles(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n)
-
-        self.dano = 35
-        self.defesa = 15
-        self.vida_max = 150
-        self.vida_atual = 150
-        self.velocidade = 10
+        super().__init__(nome, n, 35, 15, 150, 10)
 
     def animacao_habilidade(self, counter):
         return counter
