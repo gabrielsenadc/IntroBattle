@@ -83,7 +83,7 @@ class Selecao(pygame.sprite.Sprite):
         self.nome = nome
 
         self.rect = pygame.Rect((x, y), (largura_selecao, altura_selecao))
-        self.image = pygame.image.load(f"./imagens/{nome}.png" )
+        self.image = pygame.image.load(f"./imagens/{nome}/default.png" )
         self.rect_image = self.image.get_rect()
 
         h = self.image.get_height()
@@ -206,8 +206,8 @@ def menu(personagens, inimigos, janela, clock):
         clock.tick(60)
 
         if(num == 3): 
-            inimigo1 = TaylorSwift("Taylor Swift", 4)
-            inimigo2 = TravisKelce("Travis Kelce", 5)
+            inimigo1 = JakeGyllenhaal("Jake Gyllenhaal", 4)
+            inimigo2 = JohnMayer("John Mayer", 5)
             inimigos.add(inimigo1)
             inimigos.add(inimigo2)
             
