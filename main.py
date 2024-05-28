@@ -6,6 +6,7 @@ from personagens import *
 
 from menu import *
 
+from batalha import *
 
 largura = 1024 
 altura = 768
@@ -17,6 +18,7 @@ cor_jogador = (255, 255, 255)  # Branco
 
 personagens = pygame.sprite.Group()
 inimigos = pygame.sprite.Group()
+escolhas = Escolhas()
 
 # Loop do jogo
 clock = pygame.time.Clock()
@@ -49,6 +51,8 @@ while executando:
         
     for personagem in personagens:
         personagem.desenhar(janela)
+
+    escolhas.desenha(janela)
 
     # Atualizar a exibição
     pygame.display.flip()

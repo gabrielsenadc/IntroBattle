@@ -14,8 +14,8 @@ class Personagem(pygame.sprite.Sprite):
     Propriedades:
     image: imagem do personagem
     rect: retangulo que o personagem se encontra
-    x: posicao do x do personagem
-    y: posicao do y do personagem
+    x: posicao x do personagem
+    y: posicao y do personagem
     dano: pontos de dano
     defesa: pontos de defesa 
     velocidade: pontos de velocidade
@@ -44,6 +44,10 @@ class Personagem(pygame.sprite.Sprite):
         self.vida_atual = vida
         self.velocidade = velocidade
 
+        self.congelado = 0
+        self.invisivel = 0
+        self.envenenado = 0
+
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
             self.image = pygame.image.load(f"./imagens/{self.nome}/attack.png")
@@ -62,13 +66,15 @@ class Personagem(pygame.sprite.Sprite):
             return 0
          
         return counter + 1
+    
+    def ataque(self, inimigo):
+        dano = self.dano * (50 / (50 + inimigo.get_defesa()))
+        inimigo.recebe_dano(dano)
 
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
 
-    def ataque(self, inimigo):
-        dano = self.dano * (50 / (50 + inimigo.get_defesa()))
-        inimigo.recebe_dano(dano)
+    ### Setters ###
 
     def aumenta_defesa(self, aumento):
         self.defesa += aumento
@@ -79,7 +85,30 @@ class Personagem(pygame.sprite.Sprite):
     def recupera_vida(self, vida):
         self.vida_atual += vida
         if(self.vida_atual > self.vida_max): self.vida_atual = self.vida_max
+
+    def congela(self):
+        self.congela = 2
     
+    def descongela(self):
+        self.congela -= 1
+
+    def invisibilidade(self):
+        self.invisivel = 2
+
+    def diminui_invisibilidade(self):
+        self.invisivel -= 1
+
+    def envenena(self):
+        self.envenenado = 2
+
+    def desenvenena(self):
+        self.envenenado -= 1
+
+    def dano_veneno(self):
+        self.recebe_dano(35 * 0.25)
+
+    ## Getters ###
+
     def get_dano(self):
         return self.dano
     
@@ -91,12 +120,24 @@ class Personagem(pygame.sprite.Sprite):
     
     def get_vida_atual(self):
         return self.vida_atual
+
+    def get_vida_max(self):
+        return self.vida_max
     
     def get_posicao(self):
         return self.x, self.y
     
     def get_nome(self):
         return self.nome
+    
+    def get_congelado(self):
+        return self.congelado
+    
+    def get_invisivel(self):
+        return self.invisivel
+    
+    def get_evenenado(self):
+        return self.envenenado
     
 
 class TomHiddleston(Personagem):
@@ -121,6 +162,12 @@ class TomHiddleston(Personagem):
             return 0
 
         return counter + 1
+    
+    def habilidade(self, inimigos):
+        for inimigo in inimigos:
+            dano = 1.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
+            inimigo.recebe_dano(dano)
+            
 
 class TaylorLautner(Personagem):
     def __init__(self, nome, n):
@@ -128,6 +175,12 @@ class TaylorLautner(Personagem):
 
     def animacao_habilidade(self, counter):
         return counter
+    
+    def habilidade(self, inimigos):
+        for inimigo in inimigos:
+            inimigo.congela()
+            dano = 0.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
+            inimigo.recebe_dano(dano)
 
     
 class TaylorSwift(Personagem):
@@ -157,6 +210,20 @@ class EdSheeran(Personagem):
 
     def animacao_ataque(self, counter, x, y):
         return counter
+    
+    def ataque(self, inimigo, aliado):
+        dano = self.dano * (50 / (50 + inimigo.get_defesa()))
+        inimigo.recebe_dano(dano)
+        aliado.recupera_vida(dano * 0.5)
+
+    def habilidade(self, inimigos, aliados):
+        defesa = 0
+        for inimigo in inimigos:
+            defesa += inimigo.get_defesa()
+
+        defesa *= 0.5
+        for aliado in aliados:
+            aliado.aumenta_defesa(defesa / 3)
 
 class HarryStyles(Personagem):
     def __init__(self, nome, n):
@@ -167,6 +234,11 @@ class HarryStyles(Personagem):
 
     def animacao_ataque(self, counter, x, y):
         return counter
+    
+    def habilidade(self, aliado):
+        self.invisibilidade()
+        aliado.invisibilidade()
+        
 
 class JohnMayer(Personagem):
     def __init__(self, nome, n):
@@ -177,6 +249,16 @@ class JohnMayer(Personagem):
 
     def animacao_ataque(self, counter, x, y):
         return counter
+    
+    def habilidade(self, inimigo):
+        dano = self.dano * (50 / (50 + inimigo.get_defesa()))
+        inimigo.recebe_dano(dano)
+        inimigo.envenena()
+
+    def ataque(self, inimigo):
+        if(inimigo.get_vida_atual() < (inimigo.get_vida_max() * 0.20)): dano = inimigo.get_vida_atual()
+        else: dano = self.dano * (50 / (50 + inimigo.get_defesa()))
+        inimigo.recebe_dano(dano)
     
 class JakeGyllenhaal(Personagem):
     def __init__(self, nome, n):
@@ -218,6 +300,11 @@ class JakeGyllenhaal(Personagem):
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
         if(self.fogo): janela.blit(self.fogo_image, self.fogo_rect)
+
+    def habilidade(self, inimigos):
+        for inimigo in inimigos:
+            dano = 1.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
+            inimigo.recebe_dano(dano)
 
 
 
