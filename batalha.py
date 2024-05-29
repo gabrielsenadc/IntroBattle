@@ -36,7 +36,7 @@ class Seta_Escolha():
         if qtd >= 3:
             if (dir == pygame.K_UP and self.rect.y == posicoes_escolhas["escolha3"]["y"]):
                 self.rect.y = posicoes_escolhas["escolha1"]["y"]
-            if (dir == pygame.K_DOWN and self.rect.x == (posicoes_escolhas["escolha1"]["x"]) - largura_seta):
+            if (dir == pygame.K_DOWN and self.rect.y == (posicoes_escolhas["escolha1"]["y"])):
                 self.rect.y = posicoes_escolhas["escolha3"]["y"]
                 self.rect.x = posicoes_escolhas["escolha3"]["x"] - largura_seta
 
@@ -130,13 +130,13 @@ class Escolhas():
 
             self.qtd += 1
 
-    def selecao_aliados(self, aliados, personagem):
+    def selecao_aliados(self, aliados, personagem, mostrar_todos):
         self.retita_opcoes()
         self.seta.inicializa()
 
         i = 0
         for aliado in aliados:
-            if(aliado.get_nome() != personagem.get_nome()):
+            if(aliado.get_nome() != personagem.get_nome() or mostrar_todos):
                 i += 1
                 fonte = pygame.font.Font(None, 36)
                 texto = fonte.render(aliado.get_nome(), True, (0, 0, 0))
@@ -150,6 +150,7 @@ class Escolhas():
                 self.significado.append(aliado.get_nome())
 
                 self.qtd += 1
+
 
     def get_significado_seta(self):
         return self.significado[self.seta.get_posicao()]
@@ -194,6 +195,8 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
     escolher_aliados = 0
     escolher_inimigos = 0
 
+    enemy = ""
+
     if(jogador.get_nome() == "Jake Gyllenhaal" or jogador.get_nome() == "John Mayer"): return True
     while executando:
 
@@ -202,21 +205,25 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
                 return False     
             if evento.type == pygame.KEYDOWN:
                 escolhas.atualiza_seta(evento.key)
+                if evento.key == pygame.K_x and voltar:
+                    escolhas.selecao_habilidade()
+                    voltar = 0
                 if evento.key == pygame.K_z:
                     acao = escolhas.get_significado_seta()
-                    if acao == "attack":
+                    if acao == "attack": 
                         escolhas.selecao_inimigos(inimigos)
-                        voltar += 1
                         escolher_inimigos = 1
-
+                        voltar = 1
+                            
                     if acao == "skill":
                         if jogador.get_nome() == "Ed Sheeran": 
                             animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
                             jogador.habilidade(inimigos, personagens)
                             return True
                         if jogador.get_nome() == "Harry Styles": 
-                            escolhas.selecao_aliados(personagens, jogador)
-                            voltar += 1
+                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
+                            escolhas.selecao_aliados(personagens, jogador, 0)
+                            voltar = 1
                             escolher_aliados = 1
                         else:
                             animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
@@ -225,45 +232,50 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
                         
                     if escolher_inimigos:
                         for inimigo in inimigos:
-                            if acao == inimigo.get_nome(): 
+                            if acao == inimigo.get_nome():
+                                escolher_inimigos = 0
                                 animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela)
-                                jogador.ataque(inimigo)
-                                return True
+                                if jogador.get_nome() == "Ed Sheeran":
+                                    enemy = inimigo 
+                                    escolher_aliados = 1
+                                    escolhas.selecao_aliados(personagens, jogador, 1)
+                                else:
+                                    jogador.ataque(inimigo)
+                                    return True
 
                     if escolher_aliados:
                         for personagem in personagens:
-                            if acao == personagem.get_nome(): 
-                                jogador.habilidade(personagem)
+                            if acao == personagem.get_nome():
+                                escolher_aliados = 0
+                                if jogador.get_nome() == "Ed Sheeran":
+                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela)
+                                    jogador.ataque(enemy, personagem)
+                                else: 
+                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
+                                    jogador.habilidade(personagem)
                                 return True
+                        
 
-                
-                if evento.key == pygame.K_x and voltar:
-                    escolhas.selecao_habilidade()
-                    voltar -= 1
-                    
-                if evento.key == pygame.K_a:
-                    for personagem in personagens:
-                        animacao("habilidade", personagem, 0, 0, personagens, inimigos, clock, janela)
-                elif evento.key == pygame.K_s:
-                    for personagem in personagens:
-                        animacao("ataque", personagem, 750, 325, personagens, inimigos, clock, janela)
-                elif evento.key == pygame.K_q:
-                    for inimigo in inimigos:
-                        animacao("ataque", inimigo, 50, 325, personagens, inimigos, clock, janela)
-            
-                
+                   
                 
         # Preencher a janela com a cor de fundo
         janela.fill((0, 0, 0))
 
         # Atualizar o jogador
         for inimigo in inimigos:
+            if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
             inimigo.desenhar(janela)
             
         for personagem in personagens:
+            if personagem.get_vivo() == 0: personagens.remove(personagem)
             personagem.desenhar(janela)
 
         escolhas.desenha(janela)
+
+        i = 0
+        for inimigo in inimigos:
+            i += 1
+        if i == 0: return False
 
 
         pygame.display.flip()

@@ -48,6 +48,8 @@ class Personagem(pygame.sprite.Sprite):
         self.invisivel = 0
         self.envenenado = 0
 
+        self.vivo = 1
+
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
             self.image = pygame.image.load(f"./imagens/{self.nome}/attack.png")
@@ -71,10 +73,15 @@ class Personagem(pygame.sprite.Sprite):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
         inimigo.recebe_dano(dano)
 
+        if inimigo.get_vida_atual() <= 0: inimigo.morre()
+
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
 
     ### Setters ###
+
+    def morre(self):
+        self.vivo = 0
 
     def aumenta_defesa(self, aumento):
         self.defesa += aumento
@@ -141,6 +148,9 @@ class Personagem(pygame.sprite.Sprite):
     
     def get_evenenado(self):
         return self.envenenado
+    
+    def get_vivo(self):
+        return self.vivo
     
 
 class TomHiddleston(Personagem):
