@@ -87,7 +87,7 @@ class Personagem(pygame.sprite.Sprite):
         if(self.vida_atual > self.vida_max): self.vida_atual = self.vida_max
 
     def congela(self):
-        self.congela = 2
+        self.congelado = 2
     
     def descongela(self):
         self.congela -= 1
@@ -124,8 +124,11 @@ class Personagem(pygame.sprite.Sprite):
     def get_vida_max(self):
         return self.vida_max
     
-    def get_posicao(self):
-        return self.x, self.y
+    def get_posicao_x(self):
+        return self.x
+    
+    def get_posicao_y(self):
+        return self.y
     
     def get_nome(self):
         return self.nome
