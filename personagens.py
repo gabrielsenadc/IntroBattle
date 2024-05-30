@@ -47,6 +47,7 @@ class Personagem(pygame.sprite.Sprite):
         self.congelado = 0
         self.invisivel = 0
         self.envenenado = 0
+        self.defesa_extra = 0
 
         self.vivo = 1
 
@@ -73,7 +74,6 @@ class Personagem(pygame.sprite.Sprite):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
         inimigo.recebe_dano(dano)
 
-        if inimigo.get_vida_atual() <= 0: inimigo.morre()
 
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
@@ -108,12 +108,19 @@ class Personagem(pygame.sprite.Sprite):
     def envenena(self):
         self.envenenado = 2
 
-    def desenvenena(self):
-        self.envenenado -= 1
-
     def dano_veneno(self):
+        self.envenenado -= 1
         self.recebe_dano(35 * 0.25)
 
+    def defende(self):
+        self.defesa_extra = 1
+        self.defesa *= 2
+
+    def normaliza_defesa(self):
+        if self.defesa_extra:
+            self.defesa_extra = 0
+            self.defesa /= 2
+    
     ## Getters ###
 
     def get_dano(self):
@@ -146,7 +153,7 @@ class Personagem(pygame.sprite.Sprite):
     def get_invisivel(self):
         return self.invisivel
     
-    def get_evenenado(self):
+    def get_envenenado(self):
         return self.envenenado
     
     def get_vivo(self):
@@ -321,7 +328,7 @@ class JakeGyllenhaal(Personagem):
 
 
 
-def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janela):
+def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janela, escolhas, vidas):
     counter = 1
     while counter >= 1:
         if(tipo == "ataque"): counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
@@ -345,6 +352,9 @@ def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janel
             for personagem in personagens:
                 personagem.desenhar(janela)
             
+        escolhas.desenha(janela)
+        vidas.desenha(janela)
+
 
         # Atualizar a exibição
         pygame.display.flip()

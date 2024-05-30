@@ -1,5 +1,7 @@
 import pygame
 
+import math
+
 from personagens import *
 
 titulo = {"x": 100, "y": 585}
@@ -7,6 +9,12 @@ posicoes_escolhas = {"escolha1": {"x": 100, "y": 645},
                      "escolha2": {"x": 350, "y": 645},
                      "escolha3": {"x": 100, "y": 699},
                      "escolha4": {"x": 350, "y": 699}}
+
+posicoes_vida = {"vida1": {"x": 710, "y": 575},
+                 "vida2": {"x": 710, "y": 610},
+                 "vida3": {"x": 710, "y": 645},
+                 "vida4": {"x": 710, "y": 680},
+                 "vida5": {"x": 710, "y": 715},}
 
 largura_seta = 24
 
@@ -159,6 +167,59 @@ class Escolhas():
         self.seta.atualiza(dir, self.qtd)
 
 
+class Menu_Vida():
+
+    def __init__(self):
+        self.rect = pygame.Rect((700, 570), (300, 175))
+
+        self.texto = []
+        self.rect_texto = []
+
+    def desenha(self, janela):
+        pygame.draw.rect(janela, (255, 255, 255), self.rect)
+        for i in range(len(self.texto)):
+            janela.blit(self.texto[i], self.rect_texto[i])
+
+    def remove_texto(self):
+        qtd = len(self.texto)
+
+        for i in range(qtd):
+            self.texto.pop(0)
+            self.rect_texto.pop(0)       
+
+    def atualiza(self, personagens, inimigos):
+        self.remove_texto()
+
+        i = 0
+        fonte = pygame.font.Font(None, 24)
+        for personagem in personagens:
+            i += 1
+            key = f"vida{i}"
+
+            texto = fonte.render(f"{personagem.get_nome()}: {math.ceil(personagem.get_vida_atual())} / {personagem.get_vida_max()}", True, (0, 0, 0))
+
+            rect_texto = texto.get_rect()
+            rect_texto.x = posicoes_vida[key]["x"]
+            rect_texto.y = posicoes_vida[key]["y"]
+
+            self.texto.append(texto)
+            self.rect_texto.append(rect_texto)
+
+        for inimigo in inimigos:
+            i += 1
+            key = f"vida{i}"
+
+            texto = fonte.render(f"{inimigo.get_nome()}: {math.ceil(inimigo.get_vida_atual())} / {inimigo.get_vida_max()}", True, (0, 0, 0))
+
+            rect_texto = texto.get_rect()
+            rect_texto.x = posicoes_vida[key]["x"]
+            rect_texto.y = posicoes_vida[key]["y"]
+
+            self.texto.append(texto)
+            self.rect_texto.append(rect_texto)
+
+
+
 
 def ordena_turnos(personagens, inimigos):
     ordem = []
@@ -185,7 +246,7 @@ def ordena_turnos(personagens, inimigos):
     return ordem
 
 
-def turno(jogador, personagens, inimigos, janela, clock, escolhas):
+def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
     escolhas.define_titulo(jogador.get_nome())
     escolhas.selecao_habilidade()
 
@@ -196,6 +257,10 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
     escolher_inimigos = 0
 
     enemy = ""
+
+    jogador.normaliza_defesa()
+    if jogador.get_envenenado():
+        jogador.dano_veneno()
 
     if(jogador.get_nome() == "Jake Gyllenhaal" or jogador.get_nome() == "John Mayer"): return True
     while executando:
@@ -210,23 +275,26 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
                     voltar = 0
                 if evento.key == pygame.K_z:
                     acao = escolhas.get_significado_seta()
+
+                    if acao == "defend":
+                        jogador.defende()
+                        return True
+                    
                     if acao == "attack": 
                         escolhas.selecao_inimigos(inimigos)
                         escolher_inimigos = 1
                         voltar = 1
                             
                     if acao == "skill":
+                        animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas)
                         if jogador.get_nome() == "Ed Sheeran": 
-                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
                             jogador.habilidade(inimigos, personagens)
                             return True
                         if jogador.get_nome() == "Harry Styles": 
-                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
                             escolhas.selecao_aliados(personagens, jogador, 0)
                             voltar = 1
                             escolher_aliados = 1
                         else:
-                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
                             jogador.habilidade(inimigos)
                             return True
                         
@@ -234,7 +302,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
                         for inimigo in inimigos:
                             if acao == inimigo.get_nome():
                                 escolher_inimigos = 0
-                                animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela)
+                                animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
                                 if jogador.get_nome() == "Ed Sheeran":
                                     enemy = inimigo 
                                     escolher_aliados = 1
@@ -248,10 +316,10 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
                             if acao == personagem.get_nome():
                                 escolher_aliados = 0
                                 if jogador.get_nome() == "Ed Sheeran":
-                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela)
+                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
                                     jogador.ataque(enemy, personagem)
                                 else: 
-                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela)
+                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas)
                                     jogador.habilidade(personagem)
                                 return True
                         
@@ -263,14 +331,19 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
 
         # Atualizar o jogador
         for inimigo in inimigos:
+            if inimigo.get_vida_atual() <= 0: inimigo.morre()
             if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
             inimigo.desenhar(janela)
             
         for personagem in personagens:
+            if personagem.get_vida_atual() <= 0: personagem.morre()
             if personagem.get_vivo() == 0: personagens.remove(personagem)
             personagem.desenhar(janela)
 
+        vidas.atualiza(personagens, inimigos)
+
         escolhas.desenha(janela)
+        vidas.desenha(janela)
 
         i = 0
         for inimigo in inimigos:
@@ -284,6 +357,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas):
 
 def batalha(personagens, inimigos, janela, clock):
     escolhas = Escolhas()
+    vidas = Menu_Vida()
  
     ordem = ordena_turnos(personagens, inimigos)
     print(ordem)
@@ -298,11 +372,11 @@ def batalha(personagens, inimigos, janela, clock):
 
         for personagem in personagens:
             if(ordem[index] == personagem.get_nome()):
-                executando = turno(personagem, personagens, inimigos, janela, clock, escolhas)
+                executando = turno(personagem, personagens, inimigos, janela, clock, escolhas, vidas)
 
         for inimigo in inimigos:
             if(ordem[index] == inimigo.get_nome()):
-                executando = turno(inimigo, personagens, inimigos, janela, clock, escolhas)
+                executando = turno(inimigo, personagens, inimigos, janela, clock, escolhas, vidas)
         
         index += 1
         if index == 5: index = 0
