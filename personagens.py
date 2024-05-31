@@ -51,6 +51,8 @@ class Personagem(pygame.sprite.Sprite):
 
         self.vivo = 1
 
+        self.cooldown = 0
+
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
             self.image = pygame.image.load(f"./imagens/{self.nome}/attack.png")
@@ -120,9 +122,22 @@ class Personagem(pygame.sprite.Sprite):
         if self.defesa_extra:
             self.defesa_extra = 0
             self.defesa /= 2
+
+    def cooldown_habilidade(self):
+        self.cooldown -= 1
+
+    def utiliza_habilidade(self):
+        self.cooldown = 2
     
     ## Getters ###
 
+    def habilidade_disponivel(self):
+        if self.cooldown <= 0: return True 
+        else: return False
+
+    def get_cooldown(self):
+        return self.cooldown
+        
     def get_dano(self):
         return self.dano
     
@@ -264,6 +279,8 @@ class JohnMayer(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 35, 25, 225, 13)
 
+        self.turno = 0
+
     def animacao_habilidade(self, counter):
         return counter
 
@@ -279,10 +296,20 @@ class JohnMayer(Personagem):
         if(inimigo.get_vida_atual() < (inimigo.get_vida_max() * 0.20)): dano = inimigo.get_vida_atual()
         else: dano = self.dano * (50 / (50 + inimigo.get_defesa()))
         inimigo.recebe_dano(dano)
+
+    def get_turno(self):
+        return self.turno
+    
+    def set_turno(self):
+        self.turno += 1
+        if(self.turno > 3):
+            self.turno = 0
     
 class JakeGyllenhaal(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 45, 15, 175, 12)
+
+        self.turno = 0
 
         self.fogo_image = pygame.image.load(f"./imagens/fogo.png")
         h = self.fogo_image.get_height()
@@ -325,6 +352,14 @@ class JakeGyllenhaal(Personagem):
         for inimigo in inimigos:
             dano = 1.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
             inimigo.recebe_dano(dano)
+
+    def get_turno(self):
+        return self.turno
+    
+    def set_turno(self):
+        self.turno += 1
+        if(self.turno > 3):
+            self.turno = 0
 
 
 

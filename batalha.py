@@ -52,6 +52,7 @@ class Seta_Escolha():
         self.rect.x = posicoes_escolhas["escolha1"]["x"] - largura_seta
         self.rect.y = posicoes_escolhas["escolha1"]["y"] 
 
+
     def get_posicao(self):
         i = 0
         for key in posicoes_escolhas.keys():
@@ -81,8 +82,8 @@ class Escolhas():
             janela.blit(self.texto[i], self.rect_texto[i])
         self.seta.desenha(janela)
 
-    def retita_opcoes(self):
-        for i in range(self.qtd):
+    def retira_opcoes(self):
+        for i in range(len(self.texto)):
             self.texto.remove(self.texto[0])
             self.rect_texto.remove(self.rect_texto[0])
             self.significado.remove(self.significado[0])
@@ -93,17 +94,21 @@ class Escolhas():
         fonte = pygame.font.Font(None, 42)
         self.titulo = fonte.render(f"{nome}'s turn", True, (0, 0, 0))
 
-    def selecao_habilidade(self):
-        self.retita_opcoes()
+    def selecao_habilidade(self, tem_habilidade, cooldown):
+        self.retira_opcoes()
         self.seta.inicializa()
 
         frase = ""
         for key in posicoes_escolhas.keys():
             fonte = pygame.font.Font(None, 36)
 
+            if(key == "escolha3" and tem_habilidade == False): 
+                frase = f"{cooldown}"
+                self.qtd -= 1
+
             if(key == "escolha1"): frase = "attack"
             if(key == "escolha2"): frase = "defend"
-            if(key == "escolha3"): frase = "skill"
+            if(key == "escolha3" and tem_habilidade == True): frase = "skill"
             if(key == "escolha4"): break
 
             texto = fonte.render(frase, True, (0, 0, 0))
@@ -119,7 +124,7 @@ class Escolhas():
             self.qtd += 1
 
     def selecao_inimigos(self, inimigos):
-        self.retita_opcoes()
+        self.retira_opcoes()
         self.seta.inicializa()
         
         i = 0
@@ -139,7 +144,7 @@ class Escolhas():
             self.qtd += 1
 
     def selecao_aliados(self, aliados, personagem, mostrar_todos):
-        self.retita_opcoes()
+        self.retira_opcoes()
         self.seta.inicializa()
 
         i = 0
@@ -245,10 +250,43 @@ def ordena_turnos(personagens, inimigos):
 
     return ordem
 
+def get_personagem_menos_vida(personagens):
+    menor_vida = 300
+    for personagem in personagens:
+        if personagem.get_vida_atual() < menor_vida:
+            menor_vida = personagem.get_vida_atual()
+
+    for personagem in personagens:
+        if personagem.get_vida_atual() == menor_vida:
+            return personagem
+        
+
+def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas):
+    if(inimigo.get_turno() == 0 or inimigo.get_turno() == 2):
+        alvo = get_personagem_menos_vida(personagens)
+        animacao("ataque", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
+        inimigo.ataque(alvo)
+    if(inimigo.get_turno() == 1):
+        inimigo.defende()
+    if(inimigo.get_turno() == 3):
+        if inimigo.get_nome() == "Jake Gyllenhaal":
+            inimigo.habilidade(personagens)
+        if inimigo.get_nome() == "John Mayer":
+            inimigo.habilidade(get_personagem_menos_vida(personagens))
+
+    inimigo.set_turno()
+
+    for inimigo in inimigos:
+        if inimigo.get_vida_atual() <= 0: inimigo.morre()
+        if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
+            
+    for personagem in personagens:
+        if personagem.get_vida_atual() <= 0: personagem.morre()
+        if personagem.get_vivo() == 0: personagens.remove(personagem)
+
 
 def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
     escolhas.define_titulo(jogador.get_nome())
-    escolhas.selecao_habilidade()
 
     executando = True
     acao = ""
@@ -262,7 +300,13 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
     if jogador.get_envenenado():
         jogador.dano_veneno()
 
-    if(jogador.get_nome() == "Jake Gyllenhaal" or jogador.get_nome() == "John Mayer"): return True
+    if(jogador.get_nome() == "Jake Gyllenhaal" or jogador.get_nome() == "John Mayer"):
+        escolhas.retira_opcoes()
+        turno_inimigo(jogador,personagens, inimigos, clock, janela, escolhas, vidas)
+        return True
+    
+    escolhas.selecao_habilidade(jogador.habilidade_disponivel(), jogador.get_cooldown())
+    jogador.cooldown_habilidade()
     while executando:
 
         for evento in pygame.event.get():
@@ -271,7 +315,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
             if evento.type == pygame.KEYDOWN:
                 escolhas.atualiza_seta(evento.key)
                 if evento.key == pygame.K_x and voltar:
-                    escolhas.selecao_habilidade()
+                    escolhas.selecao_habilidade(jogador.habilidade_disponivel(), jogador.get_cooldown())
                     voltar = 0
                 if evento.key == pygame.K_z:
                     acao = escolhas.get_significado_seta()
@@ -289,6 +333,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                         animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas)
                         if jogador.get_nome() == "Ed Sheeran": 
                             jogador.habilidade(inimigos, personagens)
+                            jogador.utiliza_habilidade()
                             return True
                         if jogador.get_nome() == "Harry Styles": 
                             escolhas.selecao_aliados(personagens, jogador, 0)
@@ -296,6 +341,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                             escolher_aliados = 1
                         else:
                             jogador.habilidade(inimigos)
+                            jogador.utiliza_habilidade()
                             return True
                         
                     if escolher_inimigos:
@@ -321,6 +367,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                                 else: 
                                     animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas)
                                     jogador.habilidade(personagem)
+                                    jogador.utiliza_habilidade()
                                 return True
                         
 
@@ -347,6 +394,11 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
 
         i = 0
         for inimigo in inimigos:
+            i += 1
+        if i == 0: return False
+
+        i = 0
+        for personagem in personagens:
             i += 1
         if i == 0: return False
 
