@@ -23,7 +23,7 @@ class Personagem(pygame.sprite.Sprite):
     vida_atual: pontos de vida atual
     """
 
-    def __init__(self, nome, n, dano, defesa, vida, velocidade):
+    def __init__(self, nome, n, dano, defesa, vida, velocidade, nome_habilidade, tempo_cooldown):
         super().__init__()
         self.nome = nome
         self.image = pygame.image.load(f"./imagens/{nome}/default.png" )
@@ -43,6 +43,8 @@ class Personagem(pygame.sprite.Sprite):
         self.vida_max = vida
         self.vida_atual = vida
         self.velocidade = velocidade
+        self.nome_habilidade = nome_habilidade
+        self.tempo_cooldown = tempo_cooldown
 
         self.congelado = 0
         self.invisivel = 0
@@ -97,9 +99,19 @@ class Personagem(pygame.sprite.Sprite):
 
     def congela(self):
         self.congelado = 2
+        self.image = pygame.image.load(f"./imagens/{self.nome}/congelado.png" )
+
+        h = self.image.get_height()
+        self.image = pygame.transform.scale_by(self.image, 225/h)
     
     def descongela(self):
-        self.congela -= 1
+        self.congelado -= 1
+
+        if self.congelado <= 0:
+            self.image = pygame.image.load(f"./imagens/{self.nome}/default.png" )
+
+            h = self.image.get_height()
+            self.image = pygame.transform.scale_by(self.image, 225/h)
 
     def invisibilidade(self):
         self.invisivel = 2
@@ -127,9 +139,12 @@ class Personagem(pygame.sprite.Sprite):
         self.cooldown -= 1
 
     def utiliza_habilidade(self):
-        self.cooldown = 2
+        self.cooldown = self.tempo_cooldown
     
     ## Getters ###
+
+    def get_nome_habilidade(self):
+        return self.nome_habilidade
 
     def habilidade_disponivel(self):
         if self.cooldown <= 0: return True 
@@ -177,7 +192,7 @@ class Personagem(pygame.sprite.Sprite):
 
 class TomHiddleston(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 30, 15, 200, 25)
+        super().__init__(nome, n, 30, 15, 200, 25, "Getaway Car", 2)
 
     def animacao_habilidade(self, counter):
         if(counter == 1): 
@@ -206,7 +221,7 @@ class TomHiddleston(Personagem):
 
 class TaylorLautner(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 40, 20, 225, 20)
+        super().__init__(nome, n, 40, 20, 225, 20, "Back to December", 4)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -220,7 +235,7 @@ class TaylorLautner(Personagem):
     
 class TaylorSwift(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 2, 2, 2, 2)
+        super().__init__(nome, n, 2, 2, 2, 2, "", 2)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -230,7 +245,7 @@ class TaylorSwift(Personagem):
 
 class TravisKelce(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 15, 40, 300, 5)
+        super().__init__(nome, n, 15, 40, 300, 5, "", 4)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -238,7 +253,7 @@ class TravisKelce(Personagem):
 
 class EdSheeran(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 25, 10, 120, 15)
+        super().__init__(nome, n, 25, 10, 120, 15, "End Game", 4)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -262,7 +277,7 @@ class EdSheeran(Personagem):
 
 class HarryStyles(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 35, 15, 150, 10)
+        super().__init__(nome, n, 35, 15, 150, 10, "I Know Places", 4)
 
     def animacao_habilidade(self, counter):
         return counter
@@ -277,7 +292,7 @@ class HarryStyles(Personagem):
 
 class JohnMayer(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 35, 25, 225, 13)
+        super().__init__(nome, n, 35, 25, 225, 13, "", 2)
 
         self.turno = 0
 
@@ -307,7 +322,7 @@ class JohnMayer(Personagem):
     
 class JakeGyllenhaal(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 45, 15, 175, 12)
+        super().__init__(nome, n, 45, 15, 175, 12, "", 2)
 
         self.turno = 0
 
