@@ -267,7 +267,7 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas
     if inimigo.get_congelado() <= 0:
         if(inimigo.get_turno() == 0 or inimigo.get_turno() == 2):
             alvo = get_personagem_menos_vida(personagens)
-            animacao("ataque", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
+            animacao("ataque", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
             inimigo.ataque(alvo)
         if(inimigo.get_turno() == 1):
             inimigo.defende()
@@ -276,7 +276,7 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas
                 inimigo.habilidade(personagens)
             if inimigo.get_nome() == "John Mayer":
                 alvo = get_personagem_menos_vida(personagens)
-                animacao("habilidade", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
+                animacao("habilidade", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
                 inimigo.habilidade(get_personagem_menos_vida(personagens))
 
         inimigo.set_turno()
@@ -291,8 +291,12 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas
         if personagem.get_vida_atual() <= 0: personagem.morre()
         if personagem.get_vivo() == 0: personagens.remove(personagem)
 
+    vidas.atualiza(personagens, inimigos)
+
 
 def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
+    vidas.atualiza(personagens, inimigos)
+
     escolhas.define_titulo(jogador.get_nome())
 
     executando = True
@@ -341,7 +345,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                         voltar = 1
                             
                     if acao == "skill":
-                        animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas)
+                        animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
                         if jogador.get_nome() == "Ed Sheeran": 
                             jogador.habilidade(inimigos, personagens)
                             jogador.utiliza_habilidade()
@@ -364,7 +368,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                                     escolher_aliados = 1
                                     escolhas.selecao_aliados(personagens, jogador, 1)
                                 else:
-                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
+                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
                                     jogador.ataque(inimigo)
                                     return True
 
@@ -373,10 +377,10 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                             if acao == personagem.get_nome():
                                 escolher_aliados = 0
                                 if jogador.get_nome() == "Ed Sheeran":
-                                    animacao("ataque", jogador, enemy.get_posicao_x(), enemy.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas)
+                                    animacao("ataque", jogador, enemy.get_posicao_x(), enemy.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, personagem.get_posicao_x(), personagem.get_posicao_y())
                                     jogador.ataque(enemy, personagem)
                                 else: 
-                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas)
+                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
                                     jogador.habilidade(personagem)
                                     jogador.utiliza_habilidade()
                                 return True

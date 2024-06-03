@@ -70,7 +70,8 @@ class Personagem(pygame.sprite.Sprite):
         self.rect.y += (y - self.y) / 70
 
         if(counter == 70): 
-            self.image = pygame.image.load(f"./imagens/{self.path}/default.png")
+            if self.chamativo <= 0: self.image = pygame.image.load(f"./imagens/{self.path}/default.png")
+            else: self.image = pygame.image.load(f"./imagens/{self.path}/skill.png")
             h = self.image.get_height()
             self.image = pygame.transform.scale_by(self.image, 225/h)
             self.rect.x = self.x
@@ -159,6 +160,11 @@ class Personagem(pygame.sprite.Sprite):
 
     def normaliza_chamativo(self):
         self.chamativo -= 1
+
+        if self.chamativo == 0: 
+            self.image = pygame.image.load(f"./imagens/{self.path}/default.png")
+            h = self.image.get_height()
+            self.image = pygame.transform.scale_by(self.image, 225/h)
     
     ## Getters ###
 
@@ -275,6 +281,9 @@ class TravisKelce(Personagem):
     def habilidade(self, inimigos):
         self.chamativo = 2
 
+        self.image = pygame.image.load(f"./imagens/{self.path}/skill.png")
+        h = self.image.get_height()
+        self.image = pygame.transform.scale_by(self.image, 225/h)
 
 class EdSheeran(Personagem):
     def __init__(self, nome, n):
@@ -286,10 +295,16 @@ class EdSheeran(Personagem):
         self.subtract_rect = self.subtract_image.get_rect()
         self.subtract = 0
 
+        self.plus_image = pygame.image.load(f"./imagens/plus.jpeg")
+        h = self.plus_image.get_height()
+        self.plus_image = pygame.transform.scale_by(self.plus_image, 25/h)
+        self.plus_rect = self.plus_image.get_rect()
+        self.plus = 0
+
     def animacao_habilidade(self, counter):
         return counter
 
-    def animacao_ataque(self, counter, x, y):
+    def animacao_ataque(self, counter, x, y, x2, y2):
         if(counter == 1):
             self.subtract_rect.x = self.x
             self.subtract_rect.y = self.y + 25
@@ -299,15 +314,26 @@ class EdSheeran(Personagem):
             h = self.image.get_height()
             self.image = pygame.transform.scale_by(self.image, 225/h)
 
-        
-        self.subtract_rect.x += (x + 50 - self.x) / 50
-        self.subtract_rect.y += (y + 25 - self.y) / 50
+        if (counter >= 1 and counter < 70):
+            self.subtract_rect.x += (x + 50 - self.x) / 70
+            self.subtract_rect.y += (y + 25 - self.y) / 70
 
-        if(counter > 50):
+        if(counter == 70):
+            self.subtract = 0
+
+            self.plus_rect.x = x
+            self.plus_rect.y = y + 50
+            self.plus = 1
+
+        if (counter >= 70):
+            self.plus_rect.x += (x2 + 50 - x) / 70
+            self.plus_rect.y += (y2 + 25 - y) / 70
+
+        if(counter > 140):
             self.image = pygame.image.load(f"./imagens/{self.path}/default.png")
             h = self.image.get_height()
             self.image = pygame.transform.scale_by(self.image, 225/h)
-            self.subtract = 0
+            self.plus = 0
             return 0
         
         return counter + 1
@@ -315,11 +341,12 @@ class EdSheeran(Personagem):
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
         if(self.subtract): janela.blit(self.subtract_image, self.subtract_rect)
+        if(self.plus): janela.blit(self.plus_image, self.plus_rect)
     
     def ataque(self, inimigo, aliado):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
         inimigo.recebe_dano(dano)
-        aliado.recupera_vida(dano * 0.5)
+        aliado.recupera_vida(dano)
         inimigo.set_ruivo()
 
     def habilidade(self, inimigos, aliados):
@@ -465,10 +492,12 @@ class JakeGyllenhaal(Personagem):
 
 
 
-def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janela, escolhas, vidas):
+def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janela, escolhas, vidas, aliado_x, aliado_y):
     counter = 1
     while counter >= 1:
-        if(tipo == "ataque"): counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
+        if(tipo == "ataque"):
+            if atacante.get_nome() == "Ed Sheeran": counter = atacante.animacao_ataque(counter, alvo_x, alvo_y, aliado_x, aliado_y)
+            else: counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
         if(tipo == "habilidade"): counter = atacante.animacao_habilidade(counter)
         if(counter == 1): break
 
