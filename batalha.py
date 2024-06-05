@@ -272,13 +272,10 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas
         if(inimigo.get_turno() == 1):
             inimigo.defende()
         if(inimigo.get_turno() == 3):
-            if inimigo.get_nome() == "Jake Gyllenhaal":
-                inimigo.habilidade(personagens)
-            if inimigo.get_nome() == "John Mayer":
                 alvo = get_personagem_menos_vida(personagens)
                 animacao("habilidade", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
-                inimigo.habilidade(get_personagem_menos_vida(personagens))
-
+                if inimigo.get_nome() == "John Mayer": inimigo.habilidade(get_personagem_menos_vida(personagens))
+                if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.habilidade(personagens)
         inimigo.set_turno()
 
     inimigo.descongela()

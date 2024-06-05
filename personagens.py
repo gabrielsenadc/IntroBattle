@@ -251,8 +251,32 @@ class TaylorLautner(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 40, 20, 225, 20, "Back to December", 4)
 
+        self.neve_image =  pygame.image.load(f"./imagens/neve.png")
+        h = self.neve_image.get_height()
+        self.neve_image = pygame.transform.scale_by(self.neve_image, 225/h)
+
+        self.neve_rect = []
+        for i in range(4, 6):
+            key = f"personagem{i}"
+            self.neve_rect.append((posicoes_jogo[key]["x"] - 30, posicoes_jogo[key]["y"]))
+        self.neve = 0
+
     def animacao_habilidade(self, counter):
-        return counter
+        if(counter == 1): self.neve = 1
+
+        if(counter == 30): self.neve = 2
+        
+        if(counter == 60):
+            self.neve = 0
+            return 0
+        
+        return counter + 1
+    
+    def desenhar(self, janela):
+        janela.blit(self.image, self.rect)
+        if(self.neve):
+            for i in range(self.neve):
+                janela.blit(self.neve_image, self.neve_rect[i])
     
     def habilidade(self, inimigos):
         for inimigo in inimigos:
@@ -447,8 +471,28 @@ class JakeGyllenhaal(Personagem):
         self.fogo_rect = self.fogo_image.get_rect()
         self.fogo = 0
 
+        self.fire_image = pygame.image.load(f"./imagens/fogo.png")
+        h = self.fire_image.get_height()
+        self.fire_image = pygame.transform.scale_by(self.fire_image, 225/h)
+        self.fire_rect = []
+        for i in range(3):
+            key = f"personagem{i + 1}"
+            self.fire_rect.append((posicoes_jogo[key]["x"], posicoes_jogo[key]["y"]))
+        self.fire = 0
+            
+
     def animacao_habilidade(self, counter):
-        return counter
+        if(counter == 1): self.fire = 1
+
+        if(counter == 20): self.fire = 2
+
+        if(counter == 40): self.fire = 3
+
+        if(counter == 60):
+            self.fire = 0
+            return 0
+        
+        return counter + 1
 
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
@@ -476,6 +520,9 @@ class JakeGyllenhaal(Personagem):
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
         if(self.fogo): janela.blit(self.fogo_image, self.fogo_rect)
+        if(self.fire):
+            for i in range(self.fire):
+                janela.blit(self.fire_image, self.fire_rect[i])
 
     def habilidade(self, inimigos):
         for inimigo in inimigos:
@@ -498,7 +545,8 @@ def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janel
         if(tipo == "ataque"):
             if atacante.get_nome() == "Ed Sheeran": counter = atacante.animacao_ataque(counter, alvo_x, alvo_y, aliado_x, aliado_y)
             else: counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
-        if(tipo == "habilidade"): counter = atacante.animacao_habilidade(counter)
+        if(tipo == "habilidade"): 
+            counter = atacante.animacao_habilidade(counter)
         if(counter == 1): break
 
         # Preencher a janela com a cor de fundo
