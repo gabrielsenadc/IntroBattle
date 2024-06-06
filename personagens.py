@@ -86,7 +86,11 @@ class Personagem(pygame.sprite.Sprite):
 
 
     def desenhar(self, janela):
+        if self.invisivel > 0:
+            self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
+    
+
 
     ### Setters ###
 
@@ -119,11 +123,14 @@ class Personagem(pygame.sprite.Sprite):
             h = self.image.get_height()
             self.image = pygame.transform.scale_by(self.image, 225/h)
 
-    def invisibilidade(self):
-        self.invisivel = 2
+    def invisibilidade(self, n):
+        self.invisivel = n
 
     def diminui_invisibilidade(self):
         self.invisivel -= 1
+        if self.invisivel <= 0:
+            self.image.set_alpha(250)
+            
 
     def envenena(self):
         self.envenenado = 2
@@ -287,13 +294,25 @@ class TaylorLautner(Personagem):
     
 class TaylorSwift(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 2, 2, 2, 2, "", 2)
+        super().__init__(nome, n, 2, 2, 100, 2, "Don't Blame Me", 2)
+
+        self.roubado = ""
 
     def animacao_habilidade(self, counter):
         return counter
+    
+    def habilidade_taylor(self, inimigo):
+        self.habilidade = inimigo.habilidade
+        self.roubado = inimigo.get_nome()
+
+    def animacao_taylor(self, inimigo):
+        self.animacao_habilidade = inimigo.animacao_habilidade
 
     def animacao_ataque(self, counter, x, y):
         return counter
+    
+    def get_roubado(self):
+        return self.roubado
 
 class TravisKelce(Personagem):
     def __init__(self, nome, n):
@@ -393,8 +412,8 @@ class HarryStyles(Personagem):
         return counter
     
     def habilidade(self, aliado):
-        self.invisibilidade()
-        aliado.invisibilidade()
+        self.invisibilidade(2)
+        aliado.invisibilidade(3)
         
 
 class JohnMayer(Personagem):
@@ -475,18 +494,24 @@ class JakeGyllenhaal(Personagem):
         h = self.fire_image.get_height()
         self.fire_image = pygame.transform.scale_by(self.fire_image, 225/h)
         self.fire_rect = []
-        for i in range(3):
+        for i in range(5):
             key = f"personagem{i + 1}"
             self.fire_rect.append((posicoes_jogo[key]["x"], posicoes_jogo[key]["y"]))
         self.fire = 0
+
+        print(self.fire_rect)
             
 
-    def animacao_habilidade(self, counter):
-        if(counter == 1): self.fire = 1
+    def animacao_habilidade(self, counter, taylor):
+        if(counter == 1 and not(taylor)): self.fire = 1
 
-        if(counter == 20): self.fire = 2
+        if(counter == 20 and not(taylor)): self.fire = 2
 
-        if(counter == 40): self.fire = 3
+        if(counter == 40 and not(taylor)): self.fire = 3
+
+        if(counter == 1 and taylor): self.fire = 4
+
+        if(counter == 30 and taylor): self.fire = 5
 
         if(counter == 60):
             self.fire = 0
@@ -522,6 +547,7 @@ class JakeGyllenhaal(Personagem):
         if(self.fogo): janela.blit(self.fogo_image, self.fogo_rect)
         if(self.fire):
             for i in range(self.fire):
+                if self.fire >= 4 and i <= 2: continue
                 janela.blit(self.fire_image, self.fire_rect[i])
 
     def habilidade(self, inimigos):
@@ -546,7 +572,10 @@ def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janel
             if atacante.get_nome() == "Ed Sheeran": counter = atacante.animacao_ataque(counter, alvo_x, alvo_y, aliado_x, aliado_y)
             else: counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
         if(tipo == "habilidade"): 
-            counter = atacante.animacao_habilidade(counter)
+            if atacante.get_nome() == "Taylor Swift": 
+                if atacante.get_roubado() == "Jake Gyllenhaal": counter = atacante.animacao_habilidade(counter, 1)
+            elif atacante.get_nome() == "Jake Gyllenhaal": counter = atacante.animacao_habilidade(counter, 0)
+            else: counter = atacante.animacao_habilidade(counter)
         if(counter == 1): break
 
         # Preencher a janela com a cor de fundo
@@ -560,8 +589,14 @@ def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janel
             for inimigo in inimigos:
                 inimigo.desenhar(janela)
         else:
-            for inimigo in inimigos:
-                inimigo.desenhar(janela)
+            if atacante.get_nome() == "Taylor Swift":
+                for inimigo in inimigos:
+                    if inimigo.get_nome() == "John Mayer": inimigo.desenhar(janela)
+                for inimigo in inimigos:
+                    if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.desenhar(janela)
+            else: 
+                for inimigo in inimigos:
+                    inimigo.desenhar(janela)
 
             for personagem in personagens:
                 personagem.desenhar(janela)

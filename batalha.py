@@ -342,24 +342,36 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                         voltar = 1
                             
                     if acao == "skill":
-                        animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
-                        if jogador.get_nome() == "Ed Sheeran": 
-                            jogador.habilidade(inimigos, personagens)
-                            jogador.utiliza_habilidade()
-                            return True
-                        if jogador.get_nome() == "Harry Styles": 
-                            escolhas.selecao_aliados(personagens, jogador, 0)
+                        if jogador.get_nome() == "Taylor Swift":
+                            escolhas.selecao_inimigos(inimigos)
+                            escolher_inimigos = 1
                             voltar = 1
-                            escolher_aliados = 1
-                        else:
-                            jogador.habilidade(inimigos)
-                            jogador.utiliza_habilidade()
-                            return True
+                        else: 
+                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                            if jogador.get_nome() == "Ed Sheeran": 
+                                jogador.habilidade(inimigos, personagens)
+                                jogador.utiliza_habilidade()
+                                return True
+                            if jogador.get_nome() == "Harry Styles": 
+                                escolhas.selecao_aliados(personagens, jogador, 0)
+                                voltar = 1
+                                escolher_aliados = 1
+                            else:
+                                jogador.habilidade(inimigos)
+                                jogador.utiliza_habilidade()
+                                return True
                         
                     if escolher_inimigos:
                         for inimigo in inimigos:
                             if acao == inimigo.get_nome():
                                 escolher_inimigos = 0
+                                if jogador.get_nome() == "Taylor Swift":
+                                    jogador.animacao_taylor(inimigo)
+                                    jogador.habilidade_taylor(inimigo)
+                                    alvo = get_personagem_menos_vida(personagens)
+                                    animacao("habilidade", jogador, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                                    if inimigo.get_nome() == "John Mayer": inimigo.habilidade(get_personagem_menos_vida(inimigos))
+                                    if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.habilidade(inimigos)
                                 if jogador.get_nome() == "Ed Sheeran":
                                     enemy = inimigo 
                                     escolher_aliados = 1
