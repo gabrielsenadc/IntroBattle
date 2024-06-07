@@ -211,6 +211,10 @@ def menu(personagens, inimigos, janela, clock):
             inimigos.add(inimigo1)
             inimigos.add(inimigo2)
             
-
+    for personagem in personagens:
+        if personagem.get_nome() == "Taylor Swift":
+            for aliado in personagens:
+                if aliado.get_nome() == "Travis Kelce":
+                    personagem.atribui_aliado(aliado)
     
     return True

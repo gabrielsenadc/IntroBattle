@@ -225,6 +225,58 @@ class Menu_Vida():
             self.rect_texto.append(rect_texto)
 
 
+class Tela():
+
+    def __init__(self, personagens, inimigos, janela, clock, escolhas, vidas):
+        self.inimigos = inimigos
+        self.janela = janela
+        self.personagens = personagens 
+        self.vidas = vidas
+        self.escolhas = escolhas 
+        self.clock = clock
+
+    def desenha(self):
+        self.janela.fill((0, 0, 0))
+
+        for inimigo in self.inimigos:
+            inimigo.desenhar(self.janela)
+            
+        for personagem in self.personagens:
+            personagem.desenhar(self.janela)
+
+        self.escolhas.desenha(self.janela)
+        self.vidas.desenha(self.janela)
+
+    def desenha_animacao(self, atacante):
+        self.janela.fill((0, 0, 0))
+
+        # Atualizar o jogador
+        if(atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer"):
+            for personagem in self.personagens:
+                personagem.desenhar(self.janela)
+
+            for inimigo in self.inimigos:
+                inimigo.desenhar(self.janela)
+        else:
+            if atacante.get_nome() == "Taylor Swift":
+                for inimigo in self.inimigos:
+                    if inimigo.get_nome() == "John Mayer": inimigo.desenhar(self.janela)
+                for inimigo in self.inimigos:
+                    if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.desenhar(self.janela)
+            else: 
+                for inimigo in self.inimigos:
+                    inimigo.desenhar(self.janela)
+
+            for personagem in self.personagens:
+                personagem.desenhar(self.janela)
+            
+        self.escolhas.desenha(self.janela)
+        self.vidas.desenha(self.janela)
+
+    def atualiza_vidas(self):
+        self.vidas.atualiza(self.personagens, self.inimigos)
+
+
 
 
 def ordena_turnos(personagens, inimigos):
@@ -263,17 +315,17 @@ def get_personagem_menos_vida(personagens):
             return personagem
         
 
-def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas):
+def turno_inimigo(inimigo, personagens, inimigos, clock, tela):
     if inimigo.get_congelado() <= 0:
         if(inimigo.get_turno() == 0 or inimigo.get_turno() == 2):
             alvo = get_personagem_menos_vida(personagens)
-            animacao("ataque", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+            animacao("ataque", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
             inimigo.ataque(alvo)
         if(inimigo.get_turno() == 1):
             inimigo.defende()
         if(inimigo.get_turno() == 3):
                 alvo = get_personagem_menos_vida(personagens)
-                animacao("habilidade", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                animacao("habilidade", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
                 if inimigo.get_nome() == "John Mayer": inimigo.habilidade(get_personagem_menos_vida(personagens))
                 if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.habilidade(personagens)
         inimigo.set_turno()
@@ -288,11 +340,13 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, janela, escolhas, vidas
         if personagem.get_vida_atual() <= 0: personagem.morre()
         if personagem.get_vivo() == 0: personagens.remove(personagem)
 
-    vidas.atualiza(personagens, inimigos)
+    
+    tela.atualiza_vidas()
 
 
-def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
-    vidas.atualiza(personagens, inimigos)
+
+def turno(jogador, personagens, inimigos, clock, escolhas, tela):
+    tela.atualiza_vidas()
 
     escolhas.define_titulo(jogador.get_nome())
 
@@ -301,6 +355,8 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
     voltar = 0
     escolher_aliados = 0
     escolher_inimigos = 0
+    habilidade = 0
+    ataque = 0
 
     enemy = ""
 
@@ -314,7 +370,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
 
     if(jogador.get_nome() == "Jake Gyllenhaal" or jogador.get_nome() == "John Mayer"):
         escolhas.retira_opcoes()
-        turno_inimigo(jogador,personagens, inimigos, clock, janela, escolhas, vidas)
+        turno_inimigo(jogador,personagens, inimigos, clock, tela)
         return True
     
     escolhas.selecao_habilidade(jogador)
@@ -329,6 +385,8 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                 if evento.key == pygame.K_x and voltar:
                     escolhas.selecao_habilidade(jogador)
                     voltar = 0
+                    habilidade = 0
+                    ataque = 0
                 if evento.key == pygame.K_z:
                     acao = escolhas.get_significado_seta()
 
@@ -340,14 +398,16 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                         escolhas.selecao_inimigos(inimigos)
                         escolher_inimigos = 1
                         voltar = 1
+                        ataque = 1
                             
                     if acao == "skill":
                         if jogador.get_nome() == "Taylor Swift":
                             escolhas.selecao_inimigos(inimigos)
                             escolher_inimigos = 1
                             voltar = 1
+                            habilidade = 1
                         else: 
-                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                            animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, tela, 0, 0)
                             if jogador.get_nome() == "Ed Sheeran": 
                                 jogador.habilidade(inimigos, personagens)
                                 jogador.utiliza_habilidade()
@@ -365,19 +425,25 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                         for inimigo in inimigos:
                             if acao == inimigo.get_nome():
                                 escolher_inimigos = 0
-                                if jogador.get_nome() == "Taylor Swift":
+                                if jogador.get_nome() == "Taylor Swift" and habilidade:
+                                    jogador.utiliza_habilidade()
                                     jogador.animacao_taylor(inimigo)
                                     jogador.habilidade_taylor(inimigo)
                                     alvo = get_personagem_menos_vida(personagens)
-                                    animacao("habilidade", jogador, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                                    animacao("habilidade", jogador, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
                                     if inimigo.get_nome() == "John Mayer": inimigo.habilidade(get_personagem_menos_vida(inimigos))
                                     if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.habilidade(inimigos)
-                                if jogador.get_nome() == "Ed Sheeran":
+                                    return True
+                                elif jogador.get_nome() == "Ed Sheeran":
                                     enemy = inimigo 
                                     escolher_aliados = 1
                                     escolhas.selecao_aliados(personagens, jogador, 1)
+                                elif jogador.get_nome() == "Taylor Swift" and ataque:
+                                    jogador.aliado_attack(inimigo, personagens, inimigos, clock, tela)
+                                    jogador.ataque(inimigo)
+                                    return True
                                 else:
-                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
                                     jogador.ataque(inimigo)
                                     return True
 
@@ -386,10 +452,10 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                             if acao == personagem.get_nome():
                                 escolher_aliados = 0
                                 if jogador.get_nome() == "Ed Sheeran":
-                                    animacao("ataque", jogador, enemy.get_posicao_x(), enemy.get_posicao_y(), personagens, inimigos, clock, janela, escolhas, vidas, personagem.get_posicao_x(), personagem.get_posicao_y())
+                                    animacao("ataque", jogador, enemy.get_posicao_x(), enemy.get_posicao_y(), personagens, inimigos, clock, tela, personagem.get_posicao_x(), personagem.get_posicao_y())
                                     jogador.ataque(enemy, personagem)
                                 else: 
-                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, janela, escolhas, vidas, 0, 0)
+                                    animacao("habilidade", jogador, 0, 0, personagens, inimigos, clock, tela, 0, 0)
                                     jogador.habilidade(personagem)
                                     jogador.utiliza_habilidade()
                                 return True
@@ -398,23 +464,21 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
                    
                 
         # Preencher a janela com a cor de fundo
-        janela.fill((0, 0, 0))
-
+        
         # Atualizar o jogador
         for inimigo in inimigos:
             if inimigo.get_vida_atual() <= 0: inimigo.morre()
             if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
-            inimigo.desenhar(janela)
+           
             
         for personagem in personagens:
             if personagem.get_vida_atual() <= 0: personagem.morre()
             if personagem.get_vivo() == 0: personagens.remove(personagem)
-            personagem.desenhar(janela)
+            
 
-        vidas.atualiza(personagens, inimigos)
+        tela.atualiza_vidas()
 
-        escolhas.desenha(janela)
-        vidas.desenha(janela)
+        tela.desenha()
 
         i = 0
         for inimigo in inimigos:
@@ -434,6 +498,7 @@ def turno(jogador, personagens, inimigos, janela, clock, escolhas, vidas):
 def batalha(personagens, inimigos, janela, clock):
     escolhas = Escolhas()
     vidas = Menu_Vida()
+    tela = Tela(personagens, inimigos, janela, clock, escolhas, vidas)
  
     ordem = ordena_turnos(personagens, inimigos)
     print(ordem)
@@ -448,11 +513,11 @@ def batalha(personagens, inimigos, janela, clock):
 
         for personagem in personagens:
             if(ordem[index] == personagem.get_nome()):
-                executando = turno(personagem, personagens, inimigos, janela, clock, escolhas, vidas)
+                executando = turno(personagem, personagens, inimigos, clock, escolhas, tela)
 
         for inimigo in inimigos:
             if(ordem[index] == inimigo.get_nome()):
-                executando = turno(inimigo, personagens, inimigos, janela, clock, escolhas, vidas)
+                executando = turno(inimigo, personagens, inimigos, clock, escolhas, tela)
         
         index += 1
         if index == 5: index = 0

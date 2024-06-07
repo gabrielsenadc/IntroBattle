@@ -298,6 +298,16 @@ class TaylorSwift(Personagem):
 
         self.roubado = ""
 
+        self.aliado = 0
+
+    def atribui_aliado(self, personagem):
+        self.aliado = personagem
+
+    def aliado_attack(self, inimigo, personagens, inimigos, clock, tela):
+        if self.aliado != 0:
+            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
+            self.aliado.ataque(inimigo)
+
     def animacao_habilidade(self, counter):
         return counter
     
@@ -565,7 +575,7 @@ class JakeGyllenhaal(Personagem):
 
 
 
-def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janela, escolhas, vidas, aliado_x, aliado_y):
+def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, tela, aliado_x, aliado_y):
     counter = 1
     while counter >= 1:
         if(tipo == "ataque"):
@@ -578,31 +588,7 @@ def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, janel
             else: counter = atacante.animacao_habilidade(counter)
         if(counter == 1): break
 
-        # Preencher a janela com a cor de fundo
-        janela.fill((0, 0, 0))
-
-        # Atualizar o jogador
-        if(atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer"):
-            for personagem in personagens:
-                personagem.desenhar(janela)
-
-            for inimigo in inimigos:
-                inimigo.desenhar(janela)
-        else:
-            if atacante.get_nome() == "Taylor Swift":
-                for inimigo in inimigos:
-                    if inimigo.get_nome() == "John Mayer": inimigo.desenhar(janela)
-                for inimigo in inimigos:
-                    if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.desenhar(janela)
-            else: 
-                for inimigo in inimigos:
-                    inimigo.desenhar(janela)
-
-            for personagem in personagens:
-                personagem.desenhar(janela)
-            
-        escolhas.desenha(janela)
-        vidas.desenha(janela)
+        tela.desenha_animacao(atacante)
 
 
         # Atualizar a exibição
