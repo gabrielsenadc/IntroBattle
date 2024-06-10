@@ -250,7 +250,6 @@ class Tela():
     def desenha_animacao(self, atacante):
         self.janela.fill((0, 0, 0))
 
-        # Atualizar o jogador
         if(atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer"):
             for personagem in self.personagens:
                 personagem.desenhar(self.janela)
@@ -275,6 +274,15 @@ class Tela():
 
     def atualiza_vidas(self):
         self.vidas.atualiza(self.personagens, self.inimigos)
+
+    def atualiza_personagens(self):
+        for inimigo in self.inimigos:
+            if inimigo.get_vida_atual() <= 0: inimigo.morre()
+            if inimigo.get_vivo() == 0: self.inimigos.remove(inimigo)
+            
+        for personagem in self.personagens:
+            if personagem.get_vida_atual() <= 0: personagem.morre()
+            if personagem.get_vivo() == 0: self.personagens.remove(personagem)
 
 
 
@@ -332,20 +340,13 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, tela):
 
     inimigo.descongela()
 
-    for inimigo in inimigos:
-        if inimigo.get_vida_atual() <= 0: inimigo.morre()
-        if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
-            
-    for personagem in personagens:
-        if personagem.get_vida_atual() <= 0: personagem.morre()
-        if personagem.get_vivo() == 0: personagens.remove(personagem)
-
-    
+    tela.atualiza_personagens()
     tela.atualiza_vidas()
 
 
 
 def turno(jogador, personagens, inimigos, clock, escolhas, tela):
+    tela.atualiza_personagens()
     tela.atualiza_vidas()
 
     escolhas.define_titulo(jogador.get_nome())
@@ -360,13 +361,11 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
 
     enemy = ""
 
+    jogador.normaliza_chamativo()
     jogador.normaliza_defesa()
     jogador.diminui_invisibilidade()
-    if jogador.get_envenenado():
-        jogador.dano_veneno()
+    jogador.dano_veneno()
 
-    if jogador.get_chamativo():
-        jogador.normaliza_chamativo()
 
     if(jogador.get_nome() == "Jake Gyllenhaal" or jogador.get_nome() == "John Mayer"):
         escolhas.retira_opcoes()
@@ -431,8 +430,8 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
                                     jogador.habilidade_taylor(inimigo)
                                     alvo = get_personagem_menos_vida(personagens)
                                     animacao("habilidade", jogador, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
-                                    if inimigo.get_nome() == "John Mayer": inimigo.habilidade(get_personagem_menos_vida(inimigos))
-                                    if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.habilidade(inimigos)
+                                    if inimigo.get_nome() == "John Mayer": jogador.habilidade(get_personagem_menos_vida(inimigos))
+                                    if inimigo.get_nome() == "Jake Gyllenhaal": jogador.habilidade(inimigos)
                                     return True
                                 elif jogador.get_nome() == "Ed Sheeran":
                                     enemy = inimigo 
@@ -463,19 +462,7 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
 
                    
                 
-        # Preencher a janela com a cor de fundo
-        
-        # Atualizar o jogador
-        for inimigo in inimigos:
-            if inimigo.get_vida_atual() <= 0: inimigo.morre()
-            if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
-           
-            
-        for personagem in personagens:
-            if personagem.get_vida_atual() <= 0: personagem.morre()
-            if personagem.get_vivo() == 0: personagens.remove(personagem)
-            
-
+        tela.atualiza_personagens()
         tela.atualiza_vidas()
 
         tela.desenha()
@@ -522,17 +509,8 @@ def batalha(personagens, inimigos, janela, clock):
         index += 1
         if index == 5: index = 0
                 
-        # Preencher a janela com a cor de fundo
-        janela.fill((0, 0, 0))
 
-        # Atualizar o jogador
-        for inimigo in inimigos:
-            inimigo.desenhar(janela)
-            
-        for personagem in personagens:
-            personagem.desenhar(janela)
-
-
+        tela.desenha()
 
         pygame.display.flip()
         clock.tick(60)

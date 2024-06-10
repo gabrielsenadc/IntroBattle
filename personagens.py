@@ -137,7 +137,7 @@ class Personagem(pygame.sprite.Sprite):
 
     def dano_veneno(self):
         self.envenenado -= 1
-        self.recebe_dano(35 * 0.25)
+        if self.get_envenenado(): self.recebe_dano(35 * 0.25)
 
     def defende(self):
         self.defesa_extra = 1
@@ -160,7 +160,7 @@ class Personagem(pygame.sprite.Sprite):
         self.path = f"{self.nome}/ruivo"
 
         if self.congelado <= 0: self.image = pygame.image.load(f"./imagens/{self.path}/default.png" )
-        else:  self.image = pygame.image.load(f"./imagens/{self.path}/congelado.png" )
+        else: self.image = pygame.image.load(f"./imagens/{self.path}/congelado.png" )
 
         h = self.image.get_height()
         self.image = pygame.transform.scale_by(self.image, 225/h)
