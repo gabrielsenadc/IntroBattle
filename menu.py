@@ -37,6 +37,13 @@ class Seta():
         self.rect.x = posicoes_selecao["Taylor Swift"]["x"] + self.shift
         self.rect.y = posicoes_selecao["Taylor Swift"]["y"] - altura_seta
 
+        self.escolhidos = {"Travis Kelce": 0,
+                           "Taylor Swift": 0,
+                           "Taylor Lautner": 0,
+                           "Harry Styles": 0,
+                           "Tom Hiddleston": 0,
+                           "Ed Sheeran": 0}
+
     def atualiza(self, dir, ruivo, posicoes_selecao):
         if dir == pygame.K_LEFT:
             if self.rect.x >= (posicoes_selecao["Taylor Swift"]["x"]):
@@ -68,9 +75,12 @@ class Seta():
     def get_personagem(self):
         for key in posicoes_selecao.keys():
             if(self.rect.x - self.shift == posicoes_selecao[key]["x"] and self.rect.y + altura_seta == posicoes_selecao[key]["y"]):
-                return key
+                if self.escolhidos[key] == 0: return key
       
         return "ninguem"
+    
+    def escolhe_personagem(self, nome):
+        self.escolhidos[nome] = 1
 
 
 class Selecao(pygame.sprite.Sprite):
@@ -152,20 +162,14 @@ def cria_EdSheeran(selecoes, posicoes_selecao):
         if selecao.nome == "Tom Hiddleston": selecao.atualizar(posicoes_selecao["Tom Hiddleston"]["x"], posicoes_selecao["Tom Hiddleston"]["y"])
 
 def seleciona_personagem(n, seta, personagens):
-    if(seta.get_personagem() == "Taylor Swift"):
-        personagem = TaylorSwift(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Taylor Lautner"):
-        personagem = TaylorLautner(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Harry Styles"):
-        personagem = HarryStyles(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Travis Kelce"):
-        personagem = TravisKelce(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Tom Hiddleston"):
-        personagem = TomHiddleston(seta.get_personagem(), n)
-    if(seta.get_personagem() == "Ed Sheeran"):
-        personagem = EdSheeran(seta.get_personagem(), n)
- 
-    personagens.add(personagem)
+    if seta.get_personagem() != "ninguem":
+        n += 1
+        personagem = globals()["".join(seta.get_personagem().split(" "))](seta.get_personagem(), n)
+        personagens.add(personagem)
+
+        seta.escolhe_personagem(seta.get_personagem())
+
+    return n
 
 def desenha_menu(selecoes, seta, janela):
     for selecao in selecoes:
@@ -185,8 +189,7 @@ def menu(personagens, inimigos, janela, clock):
             if evento.type == pygame.KEYDOWN:
                 seta.atualiza(evento.key, ruivo, posicoes_selecao)
                 if evento.key == pygame.K_z:
-                    num += 1
-                    seleciona_personagem(num, seta, personagens)
+                    num = seleciona_personagem(num, seta, personagens)
         
         if(flag == 5): 
             cria_EdSheeran(selecoes, posicoes_selecao)
