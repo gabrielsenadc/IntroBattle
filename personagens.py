@@ -137,7 +137,7 @@ class Personagem(pygame.sprite.Sprite):
 
     def dano_veneno(self):
         self.envenenado -= 1
-        if self.get_envenenado(): self.recebe_dano(35 * 0.25)
+        if self.envenenado > 0: self.recebe_dano(35 * 0.25)
 
     def defende(self):
         self.defesa_extra = 1

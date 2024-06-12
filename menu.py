@@ -19,6 +19,13 @@ altura_selecao = 200
 largura_selecao = 200
 altura_seta = 40
 
+bg_image = bg_image = pygame.image.load("./imagens/background.jpg")
+
+w = bg_image.get_width()
+bg_image = pygame.transform.scale_by(bg_image, 1024/w)
+
+bg_image.set_alpha(75) 
+
 
 class Seta():
     """
@@ -198,6 +205,7 @@ def menu(personagens, inimigos, janela, clock):
 
         # Preencher a janela com a cor de fundo
         janela.fill((0, 0, 0))
+        janela.blit(bg_image, (0, 0))
 
         # Atualizar o jogador
         desenha_menu(selecoes, seta, janela)

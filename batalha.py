@@ -235,8 +235,17 @@ class Tela():
         self.escolhas = escolhas 
         self.clock = clock
 
+        self.fundo = pygame.image.load("./imagens/fundo.jpg")
+
+        w = self.fundo.get_width()
+        self.fundo = pygame.transform.scale_by(self.fundo, 1024/w)
+
+        self.fundo.set_alpha(110) 
+ 
+
     def desenha(self):
         self.janela.fill((0, 0, 0))
+        self.janela.blit(self.fundo, (0, 0))
 
         for inimigo in self.inimigos:
             inimigo.desenhar(self.janela)
@@ -249,6 +258,7 @@ class Tela():
 
     def desenha_animacao(self, atacante):
         self.janela.fill((0, 0, 0))
+        self.janela.blit(self.fundo, (0, 0))
 
         if(atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer"):
             for personagem in self.personagens:
@@ -316,9 +326,10 @@ def get_personagem_menos_vida(personagens):
     for personagem in personagens:
         if personagem.get_vida_atual() < menor_vida and personagem.get_invisivel() <= 0:
             menor_vida = personagem.get_vida_atual()
-        if personagem.get_chamativo(): return personagem
-
+        if personagem.get_chamativo() <= 0: return personagem
+    
     for personagem in personagens:
+        print(personagem.get_vida_atual(), menor_vida)
         if personagem.get_vida_atual() == menor_vida:
             return personagem
         
@@ -342,6 +353,8 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, tela):
 
     tela.atualiza_personagens()
     tela.atualiza_vidas()
+
+    
 
 
 
