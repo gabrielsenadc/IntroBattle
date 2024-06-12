@@ -233,19 +233,10 @@ class Tela():
         self.personagens = personagens 
         self.vidas = vidas
         self.escolhas = escolhas 
-        self.clock = clock
-
-        self.fundo = pygame.image.load("./imagens/fundo.jpg")
-
-        w = self.fundo.get_width()
-        self.fundo = pygame.transform.scale_by(self.fundo, 1024/w)
-
-        self.fundo.set_alpha(110) 
- 
+        self.clock = clock        
 
     def desenha(self):
         self.janela.fill((0, 0, 0))
-        self.janela.blit(self.fundo, (0, 0))
 
         for inimigo in self.inimigos:
             inimigo.desenhar(self.janela)
@@ -258,7 +249,6 @@ class Tela():
 
     def desenha_animacao(self, atacante):
         self.janela.fill((0, 0, 0))
-        self.janela.blit(self.fundo, (0, 0))
 
         if(atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer"):
             for personagem in self.personagens:
@@ -268,10 +258,14 @@ class Tela():
                 inimigo.desenhar(self.janela)
         else:
             if atacante.get_nome() == "Taylor Swift":
-                for inimigo in self.inimigos:
-                    if inimigo.get_nome() == "John Mayer": inimigo.desenhar(self.janela)
-                for inimigo in self.inimigos:
-                    if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.desenhar(self.janela)
+                if atacante.get_roubado() == "Jake Gyllenhaal":
+                    for inimigo in self.inimigos:
+                        if inimigo.get_nome() == "John Mayer": inimigo.desenhar(self.janela)
+                    for inimigo in self.inimigos:
+                        if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.desenhar(self.janela)
+                else:
+                    for inimigo in self.inimigos:
+                        inimigo.desenhar(self.janela)
             else: 
                 for inimigo in self.inimigos:
                     inimigo.desenhar(self.janela)
@@ -326,10 +320,9 @@ def get_personagem_menos_vida(personagens):
     for personagem in personagens:
         if personagem.get_vida_atual() < menor_vida and personagem.get_invisivel() <= 0:
             menor_vida = personagem.get_vida_atual()
-        if personagem.get_chamativo() <= 0: return personagem
+        if personagem.get_chamativo() > 0: return personagem
     
     for personagem in personagens:
-        print(personagem.get_vida_atual(), menor_vida)
         if personagem.get_vida_atual() == menor_vida:
             return personagem
         
@@ -345,8 +338,7 @@ def turno_inimigo(inimigo, personagens, inimigos, clock, tela):
         if(inimigo.get_turno() == 3):
                 alvo = get_personagem_menos_vida(personagens)
                 animacao("habilidade", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
-                if inimigo.get_nome() == "John Mayer": inimigo.habilidade(get_personagem_menos_vida(personagens))
-                if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.habilidade(personagens)
+                inimigo.habilidade(personagens)
         inimigo.set_turno()
 
     inimigo.descongela()
@@ -443,8 +435,7 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
                                     jogador.habilidade_taylor(inimigo)
                                     alvo = get_personagem_menos_vida(personagens)
                                     animacao("habilidade", jogador, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
-                                    if inimigo.get_nome() == "John Mayer": jogador.habilidade(get_personagem_menos_vida(inimigos))
-                                    if inimigo.get_nome() == "Jake Gyllenhaal": jogador.habilidade(inimigos)
+                                    jogador.habilidade(inimigos)
                                     return True
                                 elif jogador.get_nome() == "Ed Sheeran":
                                     enemy = inimigo 
@@ -501,7 +492,6 @@ def batalha(personagens, inimigos, janela, clock):
     tela = Tela(personagens, inimigos, janela, clock, escolhas, vidas)
  
     ordem = ordena_turnos(personagens, inimigos)
-    print(ordem)
 
     index = 0
     executando = True

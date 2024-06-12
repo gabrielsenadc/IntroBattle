@@ -21,9 +21,6 @@ inimigos = pygame.sprite.Group()
 
 # Loop do jogo
 clock = pygame.time.Clock()
-counterH = 0
-counterA = 0
-counterV = 0
 executando = menu(personagens, inimigos, janela, clock)
 if executando == True: batalha(personagens, inimigos, janela, clock)
 
