@@ -1,5 +1,7 @@
 import pygame
 
+import numpy
+
 largura = 1024 
 altura = 768
 
@@ -212,6 +214,17 @@ class Personagem(pygame.sprite.Sprite):
     def get_vivo(self):
         return self.vivo
     
+def get_personagem_menos_vida(personagens):
+    menor_vida = 300
+    for personagem in personagens:
+        if personagem.get_vida_atual() < menor_vida and personagem.get_invisivel() <= 0:
+            menor_vida = personagem.get_vida_atual()
+        if personagem.get_chamativo() > 0: return personagem
+    
+    for personagem in personagens:
+        if personagem.get_vida_atual() == menor_vida:
+            return personagem
+    
 
 class TomHiddleston(Personagem):
     def __init__(self, nome, n):
@@ -276,38 +289,6 @@ class TaylorLautner(Personagem):
             inimigo.recebe_dano(dano)
 
     
-class TaylorSwift(Personagem):
-    def __init__(self, nome, n):
-        super().__init__(nome, n, 2, 2, 100, 2, "Don't Blame Me", 2)
-
-        self.roubado = ""
-
-        self.aliado = 0
-
-    def atribui_aliado(self, personagem):
-        self.aliado = personagem
-
-    def aliado_attack(self, inimigo, personagens, inimigos, clock, tela):
-        if self.aliado != 0:
-            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
-            self.aliado.ataque(inimigo)
-
-    def animacao_habilidade(self, counter):
-        return counter
-    
-    def habilidade_taylor(self, inimigo):
-        self.habilidade = inimigo.habilidade
-        self.roubado = inimigo.get_nome()
-
-    def animacao_taylor(self, inimigo):
-        self.animacao_habilidade = inimigo.animacao_habilidade
-
-    def animacao_ataque(self, counter, x, y):
-        return counter
-    
-    def get_roubado(self):
-        return self.roubado
-
 class TravisKelce(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 15, 40, 300, 5, "Touchdown", 4)
@@ -402,7 +383,97 @@ class HarryStyles(Personagem):
     def habilidade(self, aliado):
         self.invisibilidade(2)
         aliado.invisibilidade(3)
-        
+
+def animacao_JohnMayer(personagem, counter, x, y):
+    if(counter == 1):
+        personagem.ghost_rect.x = personagem.x
+        personagem.ghost_rect.y = personagem.y + 65
+        personagem.ghost = 1
+
+        personagem.set_image("attack")
+
+    
+    personagem.ghost_rect.x += (x + 50 - personagem.x) / 50
+    personagem.ghost_rect.y += (y - personagem.y - 65) / 50
+
+    if(counter > 50):
+        personagem.set_image("default")
+        personagem.ghost = 0
+        return 0
+    
+    return counter + 1
+
+def animacao_JakeGyllenhaal(personagem, counter):
+    if(counter == 1):
+        personagem.set_image("skill")
+        personagem.fire = 1
+
+    if(counter == 20): personagem.fire = 2
+
+    if(counter == 40): personagem.fire = 3
+
+    if(counter == 60):
+        personagem.set_image("default")
+        personagem.fire = 0
+        return 0
+    
+    return counter + 1
+    
+     
+class TaylorSwift(Personagem):
+    def __init__(self, nome, n):
+        super().__init__(nome, n, 2, 2, 100, 2, "Don't Blame Me", 2)
+
+        self.roubado = ""
+
+        self.aliado = 0
+
+        self.ghost_image = pygame.image.load(f"./imagens/ghost.png")
+        h = self.ghost_image.get_height()
+        self.ghost_image = pygame.transform.scale_by(self.ghost_image, 150/h)
+        self.ghost_rect = self.ghost_image.get_rect()
+        self.ghost = 0
+
+        self.fire_image = pygame.image.load(f"./imagens/fogo.png")
+        h = self.fire_image.get_height()
+        self.fire_image = pygame.transform.scale_by(self.fire_image, 225/h)
+        self.fire_rect = []
+        for i in range(4, 6):
+            key = f"personagem{i}"
+            self.fire_rect.append((posicoes_jogo[key]["x"], posicoes_jogo[key]["y"]))
+        self.fire = 0
+
+
+    def atribui_aliado(self, personagem):
+        self.aliado = personagem
+
+    def aliado_attack(self, inimigo, personagens, inimigos, clock, tela):
+        if self.aliado != 0:
+            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
+            self.aliado.ataque(inimigo)
+
+    def animacao_habilidade(self, counter, x, y):
+        if self.roubado == "John Mayer": return animacao_JohnMayer(self, counter, x, y)
+        if self.roubado == "Jake Gyllenhaal": return animacao_JakeGyllenhaal(self, counter)
+    
+    def habilidade_taylor(self, inimigo):
+        self.habilidade = inimigo.habilidade
+        self.roubado = inimigo.get_nome()
+
+    def animacao_ataque(self, counter, x, y):
+        return counter
+    
+    def get_roubado(self):
+        return self.roubado
+    
+    def desenhar(self, janela):
+        janela.blit(self.image, self.rect)
+        if(self.ghost): janela.blit(self.ghost_image, self.ghost_rect)
+        if(self.fire):
+            for i in range(self.fire):
+                if self.fire == 3: break
+                janela.blit(self.fire_image, self.fire_rect[i])
+  
 
 class JohnMayer(Personagem):
     def __init__(self, nome, n):
@@ -416,57 +487,43 @@ class JohnMayer(Personagem):
         self.ghost_rect = self.ghost_image.get_rect()
         self.ghost = 0
 
-        self.poison_image = pygame.image.load(f"./imagens/poison.jpg")
-        h = self.poison_image.get_height()
-        self.poison_image = pygame.transform.scale_by(self.poison_image, 768/h)
-        self.poison = 0
-        self.poison_rect = 0
-        self.poison_image.set_alpha(75) 
+        self.raio_image = pygame.image.load(f"./imagens/raio.png")
+        self.raio = 0
 
 
-    def animacao_habilidade(self, counter, taylor):
-        if counter == 1: 
-            if not taylor: self.set_image("skill")
-            self.poison = 1
-
-        if taylor: self.poison_rect = (700, 0)
-        else: self.poison_rect = (0, 0)
-
-        if counter > 50: 
-            self.set_image("default")
-            self.poison = 0
-            return 0
-        return counter + 1
-
+    def animacao_habilidade(self, counter, x, y):
+        return animacao_JohnMayer(self, counter, x, y)
+    
     def animacao_ataque(self, counter, x, y):
-        if(counter == 1):
-            self.ghost_rect.x = self.x
-            self.ghost_rect.y = self.y + 65
-            self.ghost = 1
-
+        if counter == 1:
             self.set_image("attack")
+            self.raio = 1
 
-        
-        self.ghost_rect.x += (x + 50 - self.x) / 50
-        self.ghost_rect.y += (y - self.y - 65) / 50
 
-        if(counter > 50):
+            w = self.raio_image.get_width()
+            self.raio_rect = (x, y)
+            d = ((self.x - x)**2 + (self.y - y)**2)**(1/2)
+            self.raio_image = pygame.transform.scale_by(self.raio_image, d/w)
+            a = numpy.arcsin((x - self.x) / d)
+            self.raio_image = pygame.transform.rotate(self.raio_image, a)
+
+        if counter >= 50: 
             self.set_image("default")
-            self.ghost = 0
+            self.raio = 0
             return 0
-        
+
         return counter + 1
     
     def desenhar(self, janela):
         janela.blit(self.image, self.rect)
         if(self.ghost): janela.blit(self.ghost_image, self.ghost_rect)
-        if(self.poison):  janela.blit(self.poison_image, self.poison_rect)
+        if(self.raio): janela.blit(self.raio_image, self.raio_rect)
     
     def habilidade(self, inimigos):
-        for inimigo in inimigos:
-            dano = self.dano * (50 / (50 + inimigo.get_defesa()))
-            inimigo.recebe_dano(dano)
-            inimigo.envenena()
+        inimigo = get_personagem_menos_vida(inimigos)
+        dano = self.dano * (50 / (50 + inimigo.get_defesa()))
+        inimigo.recebe_dano(dano)
+        inimigo.envenena()
 
     def ataque(self, inimigo):
         if(inimigo.get_vida_atual() < (inimigo.get_vida_max() * 0.20)): dano = inimigo.get_vida_atual()
@@ -506,24 +563,7 @@ class JakeGyllenhaal(Personagem):
             
 
     def animacao_habilidade(self, counter, taylor):
-        if(counter == 1 and not(taylor)): 
-            if not taylor: self.set_image("skill")
-            self.fire = 1
-
-        if(counter == 20 and not(taylor)): self.fire = 2
-
-        if(counter == 40 and not(taylor)): self.fire = 3
-
-        if(counter == 1 and taylor): self.fire = 4
-
-        if(counter == 30 and taylor): self.fire = 5
-
-        if(counter == 60):
-            self.set_image("default")
-            self.fire = 0
-            return 0
-        
-        return counter + 1
+        return animacao_JakeGyllenhaal(self, counter)
 
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
@@ -574,8 +614,8 @@ def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, tela,
             if atacante.get_nome() == "Ed Sheeran": counter = atacante.animacao_ataque(counter, alvo_x, alvo_y, aliado_x, aliado_y)
             else: counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
         if(tipo == "habilidade"): 
-            if atacante.get_nome() == "Taylor Swift": counter = atacante.animacao_habilidade(counter, 1)
-            elif atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer": counter = atacante.animacao_habilidade(counter, 0)
+            if atacante.get_nome() == "Jake Gyllenhaal": counter = atacante.animacao_habilidade(counter, 0)
+            elif atacante.get_nome() == "John Mayer" or atacante.get_nome() == "Taylor Swift": counter = atacante.animacao_habilidade(counter, alvo_x, alvo_y)
             else: counter = atacante.animacao_habilidade(counter)
         if(counter == 1): break
 

@@ -315,16 +315,6 @@ def ordena_turnos(personagens, inimigos):
 
     return ordem
 
-def get_personagem_menos_vida(personagens):
-    menor_vida = 300
-    for personagem in personagens:
-        if personagem.get_vida_atual() < menor_vida and personagem.get_invisivel() <= 0:
-            menor_vida = personagem.get_vida_atual()
-        if personagem.get_chamativo() > 0: return personagem
-    
-    for personagem in personagens:
-        if personagem.get_vida_atual() == menor_vida:
-            return personagem
         
 
 def turno_inimigo(inimigo, personagens, inimigos, clock, tela):
@@ -431,9 +421,8 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
                                 escolher_inimigos = 0
                                 if jogador.get_nome() == "Taylor Swift" and habilidade:
                                     jogador.utiliza_habilidade()
-                                    jogador.animacao_taylor(inimigo)
                                     jogador.habilidade_taylor(inimigo)
-                                    alvo = get_personagem_menos_vida(personagens)
+                                    alvo = get_personagem_menos_vida(inimigos)
                                     animacao("habilidade", jogador, alvo.get_posicao_x(), alvo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
                                     jogador.habilidade(inimigos)
                                     return True
@@ -511,6 +500,14 @@ def batalha(personagens, inimigos, janela, clock):
         
         index += 1
         if index == 5: index = 0
+
+        for inimigo in inimigos:
+            if inimigo.get_vida_atual() <= 0: inimigo.morre()
+            if inimigo.get_vivo() == 0: inimigos.remove(inimigo)
+            
+        for personagem in personagens:
+            if personagem.get_vida_atual() <= 0: personagem.morre()
+            if personagem.get_vivo() == 0: personagens.remove(personagem)
                 
 
         tela.desenha()
