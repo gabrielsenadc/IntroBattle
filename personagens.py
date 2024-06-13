@@ -495,17 +495,21 @@ class JohnMayer(Personagem):
         return animacao_JohnMayer(self, counter, x, y)
     
     def animacao_ataque(self, counter, x, y):
+        
         if counter == 1:
-            self.set_image("attack")
-            self.raio = 1
-
-
+            self.raio_image = pygame.image.load(f"./imagens/raio.png")
+            
             w = self.raio_image.get_width()
             self.raio_rect = (x, y)
             d = ((self.x - x)**2 + (self.y - y)**2)**(1/2)
-            self.raio_image = pygame.transform.scale_by(self.raio_image, d/w)
-            a = numpy.arcsin((x - self.x) / d)
-            self.raio_image = pygame.transform.rotate(self.raio_image, a)
+            a = ((numpy.arccos((self.x - x) / d) * 180) / 3.14) 
+            if(self.y == y): d += 20
+            
+            self.set_image("attack")
+            self.raio = 1
+
+            self.raio_image = pygame.transform.scale_by(self.raio_image, (d + 10)/w)
+            self.raio_image = pygame.transform.rotate(self.raio_image, -a)
 
         if counter >= 50: 
             self.set_image("default")
