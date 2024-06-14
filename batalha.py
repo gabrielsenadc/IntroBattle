@@ -31,8 +31,10 @@ class Seta_Escolha():
         self.rect.x = posicoes_escolhas["escolha1"]["x"] - largura_seta
         self.rect.y = posicoes_escolhas["escolha1"]["y"] 
 
+        self.printa = 1
+
     def desenha(self, janela):
-        janela.blit(self.image, self.rect)
+        if self.printa: janela.blit(self.image, self.rect)
 
     def atualiza(self, dir, qtd):
         if qtd >= 2:
@@ -51,13 +53,16 @@ class Seta_Escolha():
     def inicializa(self):
         self.rect.x = posicoes_escolhas["escolha1"]["x"] - largura_seta
         self.rect.y = posicoes_escolhas["escolha1"]["y"] 
-
+        self.printa = 1
 
     def get_posicao(self):
         i = 0
         for key in posicoes_escolhas.keys():
             if(self.rect.x == posicoes_escolhas[key]["x"] - largura_seta and self.rect.y == posicoes_escolhas[key]["y"]): return i
             i += 1
+
+    def set_printa_0(self):
+        self.printa = 0
 
     
 
@@ -298,6 +303,8 @@ class Tela():
             if personagem.get_vida_atual() <= 0: personagem.morre()
             if personagem.get_vivo() == 0: self.personagens.remove(personagem)
 
+    def set_seta_printa_0(self):
+        self.escolhas.seta.set_printa_0()
 
 
 
@@ -328,6 +335,7 @@ def ordena_turnos(personagens, inimigos):
         
 
 def turno_inimigo(inimigo, personagens, inimigos, clock, tela):
+    tela.set_seta_printa_0()
     if inimigo.get_congelado() <= 0:
         if(inimigo.get_turno() == 0 or inimigo.get_turno() == 2):
             alvo = get_personagem_menos_vida(personagens)

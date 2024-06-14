@@ -353,6 +353,8 @@ class EdSheeran(Personagem):
         return counter + 1
     
     def desenhar(self, janela):
+        if self.invisivel > 0:
+            self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
         if(self.subtract): janela.blit(self.subtract_image, self.subtract_rect)
         if(self.plus): janela.blit(self.plus_image, self.plus_rect)
@@ -376,11 +378,41 @@ class HarryStyles(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 35, 15, 150, 10, "I Know Places", 4)
 
+        self.glitter_image = pygame.image.load(f"./imagens/glitter.png")
+        h = self.glitter_image.get_height()
+        self.glitter_image = pygame.transform.scale_by(self.glitter_image, 50/h)
+        self.glitter_image = pygame.transform.rotate(self.glitter_image, -90)
+        self.glitter_rect = self.glitter_image.get_rect()
+        self.glitter = 0
+
     def animacao_habilidade(self, counter):
         return counter
 
     def animacao_ataque(self, counter, x, y):
-        return counter
+        if(counter == 1):
+            self.glitter_rect.x = self.x
+            self.glitter_rect.y = self.y + 25
+            self.glitter = 1
+
+            self.set_image("attack")
+
+        
+        self.glitter_rect.x += (x + 50 - self.x) / 50
+        self.glitter_rect.y += (y + 25 - self.y) / 50
+
+        if(counter > 50):
+            self.set_image("default")
+            self.glitter = 0
+            return 0
+        
+        return counter + 1
+    
+
+    def desenhar(self, janela):
+        if self.invisivel > 0:
+            self.image.set_alpha(69) 
+        janela.blit(self.image, self.rect)
+        if(self.glitter): janela.blit(self.glitter_image, self.glitter_rect)
     
     def habilidade(self, aliado):
         self.invisibilidade(2)
@@ -469,6 +501,8 @@ class TaylorSwift(Personagem):
         return self.roubado
     
     def desenhar(self, janela):
+        if self.invisivel > 0:
+            self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
         if(self.ghost): janela.blit(self.ghost_image, self.ghost_rect)
         if(self.fire):

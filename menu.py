@@ -135,6 +135,12 @@ class Selecao(pygame.sprite.Sprite):
         self.rect_texto.x = x + self.texto_shift
         self.rect_texto.y = y + 170
 
+    def seleciona_personagem(self):
+        self.image = pygame.image.load(f"./imagens/{self.nome}/selected.png" )
+        h = self.image.get_height()
+        self.image = pygame.transform.scale_by(self.image, 170/h)
+
+
 selecoes = pygame.sprite.Group()
 for key in posicoes_selecao.keys():
     if(key != "Ed Sheeran"):
@@ -168,13 +174,17 @@ def cria_EdSheeran(selecoes, posicoes_selecao):
         if selecao.nome == "Harry Styles": selecao.atualizar(posicoes_selecao["Harry Styles"]["x"], posicoes_selecao["Harry Styles"]["y"])
         if selecao.nome == "Tom Hiddleston": selecao.atualizar(posicoes_selecao["Tom Hiddleston"]["x"], posicoes_selecao["Tom Hiddleston"]["y"])
 
-def seleciona_personagem(n, seta, personagens):
+def seleciona_personagem(n, seta, personagens, selecoes):
     if seta.get_personagem() != "ninguem":
         n += 1
+        for selecao in selecoes:
+            if selecao.nome == seta.get_personagem(): selecao.seleciona_personagem()
+
         personagem = globals()["".join(seta.get_personagem().split(" "))](seta.get_personagem(), n)
         personagens.add(personagem)
 
         seta.escolhe_personagem(seta.get_personagem())
+        
 
     return n
 
@@ -196,7 +206,7 @@ def menu(personagens, inimigos, janela, clock):
             if evento.type == pygame.KEYDOWN:
                 seta.atualiza(evento.key, ruivo, posicoes_selecao)
                 if evento.key == pygame.K_z:
-                    num = seleciona_personagem(num, seta, personagens)
+                    num = seleciona_personagem(num, seta, personagens, selecoes)
         
         if(flag == 5): 
             cria_EdSheeran(selecoes, posicoes_selecao)
