@@ -5,11 +5,11 @@ import numpy
 largura = 1024 
 altura = 768
 
-posicoes_jogo = {"personagem1": {"x": 50, "y": 50},
-                 "personagem2": {"x": 250, "y": 175},
-                 "personagem3": {"x": 50, "y": 325},
-                 "personagem4": {"x": 750, "y": 50},
-                 "personagem5": {"x": 750, "y": 325},}
+posicoes_jogo = {"personagem1": {"x": 150, "y": 10},
+                 "personagem2": {"x": 350, "y": 175},
+                 "personagem3": {"x": 150, "y": 325},
+                 "personagem4": {"x": 800, "y": 15},
+                 "personagem5": {"x": 800, "y": 325},}
 
 class Personagem(pygame.sprite.Sprite):
     """
@@ -66,8 +66,10 @@ class Personagem(pygame.sprite.Sprite):
         if(counter == 1):
             self.set_image("attack")
 
+        shift = self.x / 20
+
         self.rect.x += (x - self.x) / 70
-        self.rect.y += (y - self.y) / 70
+        self.rect.y += (y - self.y - shift) / 70
 
         if(counter == 70): 
             if self.chamativo <= 0: self.set_image("default")
@@ -504,7 +506,8 @@ class JohnMayer(Personagem):
             d = ((self.x - x)**2 + (self.y - y)**2)**(1/2)
             a = ((numpy.arccos((self.x - x) / d) * 180) / 3.14) 
             if(self.y == y): d += 20
-            
+            else: d += (self.y - y) / 60
+
             self.set_image("attack")
             self.raio = 1
 

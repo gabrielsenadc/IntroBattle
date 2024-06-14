@@ -233,10 +233,19 @@ class Tela():
         self.personagens = personagens 
         self.vidas = vidas
         self.escolhas = escolhas 
-        self.clock = clock        
+        self.clock = clock    
+
+        self.fundo = pygame.image.load("./imagens/palco.png")
+
+        w = self.fundo.get_width()
+        self.fundo = pygame.transform.scale(self.fundo, (1024, 850))
+
+        #self.fundo.set_alpha(110) 
+
 
     def desenha(self):
         self.janela.fill((0, 0, 0))
+        self.janela.blit(self.fundo, (0, 0))
 
         for inimigo in self.inimigos:
             inimigo.desenhar(self.janela)
@@ -249,6 +258,7 @@ class Tela():
 
     def desenha_animacao(self, atacante):
         self.janela.fill((0, 0, 0))
+        self.janela.blit(self.fundo, (0, 0))
 
         if(atacante.get_nome() == "Jake Gyllenhaal" or atacante.get_nome() == "John Mayer"):
             for personagem in self.personagens:
@@ -460,16 +470,6 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
 
         tela.desenha()
 
-        i = 0
-        for inimigo in inimigos:
-            i += 1
-        if i == 0: return False
-
-        i = 0
-        for personagem in personagens:
-            i += 1
-        if i == 0: return False
-
 
         pygame.display.flip()
         clock.tick(60)
@@ -508,6 +508,16 @@ def batalha(personagens, inimigos, janela, clock):
         for personagem in personagens:
             if personagem.get_vida_atual() <= 0: personagem.morre()
             if personagem.get_vivo() == 0: personagens.remove(personagem)
+
+        i = 0
+        for inimigo in inimigos:
+            i += 1
+        if i == 0: return False
+
+        i = 0
+        for personagem in personagens:
+            i += 1
+        if i == 0: return False
                 
 
         tela.desenha()
