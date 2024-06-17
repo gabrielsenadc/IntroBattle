@@ -31,10 +31,8 @@ class Seta_Escolha():
         self.rect.x = posicoes_escolhas["escolha1"]["x"] - largura_seta
         self.rect.y = posicoes_escolhas["escolha1"]["y"] 
 
-        self.printa = 1
-
     def desenha(self, janela):
-        if self.printa: janela.blit(self.image, self.rect)
+        janela.blit(self.image, self.rect)
 
     def atualiza(self, dir, qtd):
         if qtd >= 2:
@@ -52,17 +50,13 @@ class Seta_Escolha():
 
     def inicializa(self):
         self.rect.x = posicoes_escolhas["escolha1"]["x"] - largura_seta
-        self.rect.y = posicoes_escolhas["escolha1"]["y"] 
-        self.printa = 1
+        self.rect.y = posicoes_escolhas["escolha1"]["y"]
 
     def get_posicao(self):
         i = 0
         for key in posicoes_escolhas.keys():
             if(self.rect.x == posicoes_escolhas[key]["x"] - largura_seta and self.rect.y == posicoes_escolhas[key]["y"]): return i
             i += 1
-
-    def set_printa_0(self):
-        self.printa = 0
 
     
 
@@ -80,12 +74,14 @@ class Escolhas():
 
         self.qtd = 0
 
+        self.print_seta = 1
+
     def desenha(self, janela):
         pygame.draw.rect(janela, (255, 255, 255), self.rect)
         janela.blit(self.titulo, (titulo["x"], titulo["y"]))
         for i in range(len(self.texto)):
             janela.blit(self.texto[i], self.rect_texto[i])
-        self.seta.desenha(janela)
+        if self.print_seta: self.seta.desenha(janela)
 
     def retira_opcoes(self):
         for i in range(len(self.texto)):
@@ -99,9 +95,13 @@ class Escolhas():
         fonte = pygame.font.Font(None, 42)
         self.titulo = fonte.render(f"{nome}'s turn", True, (0, 0, 0))
 
-    def selecao_habilidade(self, jogador):
+    def inic_selecao(self):
         self.retira_opcoes()
         self.seta.inicializa()
+        self.print_seta = 1
+
+    def selecao_habilidade(self, jogador):
+        self.inic_selecao()
 
         frase = ""
         for key in posicoes_escolhas.keys():
@@ -130,8 +130,7 @@ class Escolhas():
             self.qtd += 1
 
     def selecao_inimigos(self, inimigos):
-        self.retira_opcoes()
-        self.seta.inicializa()
+        self.inic_selecao()
         
         i = 0
         for inimigo in inimigos:
@@ -150,8 +149,7 @@ class Escolhas():
             self.qtd += 1
 
     def selecao_aliados(self, aliados, personagem, mostrar_todos):
-        self.retira_opcoes()
-        self.seta.inicializa()
+        self.inic_selecao()
 
         i = 0
         for aliado in aliados:
@@ -176,6 +174,9 @@ class Escolhas():
     
     def atualiza_seta(self, dir):
         self.seta.atualiza(dir, self.qtd)
+
+    def set_print_seta_0(self):
+        self.print_seta = 0
 
 
 class Menu_Vida():
@@ -272,18 +273,8 @@ class Tela():
             for inimigo in self.inimigos:
                 inimigo.desenhar(self.janela)
         else:
-            if atacante.get_nome() == "Taylor Swift":
-                if atacante.get_roubado() == "Jake Gyllenhaal":
-                    for inimigo in self.inimigos:
-                        if inimigo.get_nome() == "John Mayer": inimigo.desenhar(self.janela)
-                    for inimigo in self.inimigos:
-                        if inimigo.get_nome() == "Jake Gyllenhaal": inimigo.desenhar(self.janela)
-                else:
-                    for inimigo in self.inimigos:
-                        inimigo.desenhar(self.janela)
-            else: 
-                for inimigo in self.inimigos:
-                    inimigo.desenhar(self.janela)
+            for inimigo in self.inimigos:
+                inimigo.desenhar(self.janela)
 
             for personagem in self.personagens:
                 personagem.desenhar(self.janela)
@@ -304,7 +295,7 @@ class Tela():
             if personagem.get_vivo() == 0: self.personagens.remove(personagem)
 
     def set_seta_printa_0(self):
-        self.escolhas.seta.set_printa_0()
+        self.escolhas.set_print_seta_0()
 
 
 
@@ -478,7 +469,6 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
 
         tela.desenha()
 
-
         pygame.display.flip()
         clock.tick(60)
 
@@ -508,6 +498,9 @@ def batalha(personagens, inimigos, janela, clock):
         
         index += 1
         if index == 5: index = 0
+
+        tela.atualiza_personagens()
+        tela.atualiza_vidas()
 
         for inimigo in inimigos:
             if inimigo.get_vida_atual() <= 0: inimigo.morre()

@@ -150,18 +150,12 @@ for key in posicoes_selecao.keys():
 
 def verifica_ruivo(evento, flag):
     if evento.type == pygame.KEYDOWN:
-        if evento.key == pygame.K_r:
-            flag = 1
-        elif (evento.key == pygame.K_u and flag == 1):
-            flag = 2
-        elif (evento.key == pygame.K_i and flag == 2):
-            flag = 3
-        elif (evento.key == pygame.K_v and flag == 3):
-            flag = 4
-        elif (evento.key == pygame.K_o and flag == 4):
-            flag = 5
-        else:
-            flag = 0
+        if evento.key == pygame.K_r: flag = 1
+        elif evento.key == pygame.K_u and flag == 1: flag = 2
+        elif evento.key == pygame.K_i and flag == 2: flag = 3
+        elif evento.key == pygame.K_v and flag == 3: flag = 4
+        elif evento.key == pygame.K_o and flag == 4: flag = 5
+        else: flag = 0
 
     return flag
 
@@ -173,6 +167,8 @@ def cria_EdSheeran(selecoes, posicoes_selecao):
     for selecao in selecoes:
         if selecao.nome == "Harry Styles": selecao.atualizar(posicoes_selecao["Harry Styles"]["x"], posicoes_selecao["Harry Styles"]["y"])
         if selecao.nome == "Tom Hiddleston": selecao.atualizar(posicoes_selecao["Tom Hiddleston"]["x"], posicoes_selecao["Tom Hiddleston"]["y"])
+
+    return -1
 
 def seleciona_personagem(n, seta, personagens, selecoes):
     if seta.get_personagem() != "ninguem":
@@ -202,14 +198,14 @@ def menu(personagens, inimigos, janela, clock):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 return False
-            flag = verifica_ruivo(evento, flag)
+            if flag != -1: flag = verifica_ruivo(evento, flag)
             if evento.type == pygame.KEYDOWN:
                 seta.atualiza(evento.key, ruivo, posicoes_selecao)
                 if evento.key == pygame.K_z:
                     num = seleciona_personagem(num, seta, personagens, selecoes)
         
         if(flag == 5): 
-            cria_EdSheeran(selecoes, posicoes_selecao)
+            flag = cria_EdSheeran(selecoes, posicoes_selecao)
             ruivo = 1
             seta.atualiza_ruivo(posicoes_selecao)
 
