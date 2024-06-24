@@ -477,6 +477,12 @@ class TaylorSwift(Personagem):
             self.fire_rect.append((posicoes_jogo[key]["x"], posicoes_jogo[key]["y"]))
         self.fire = 0
 
+        self.snake_image = pygame.image.load(f"./imagens/snake.png")
+        h = self.snake_image.get_height()
+        self.snake_image = pygame.transform.scale_by(self.snake_image, 100/h)
+        self.snake_rect = self.snake_image.get_rect()
+        self.snake = 0
+
 
     def atribui_aliado(self, personagem):
         self.aliado = personagem
@@ -495,7 +501,23 @@ class TaylorSwift(Personagem):
         self.roubado = inimigo.get_nome()
 
     def animacao_ataque(self, counter, x, y):
-        return counter
+        if(counter == 1):
+            self.snake_rect.x = self.x
+            self.snake_rect.y = self.y + 25
+            self.snake = 1
+
+            self.set_image("attack")
+
+        
+        self.snake_rect.x += (x + 50 - self.x) / 50
+        self.snake_rect.y += (y + 25 - self.y) / 50
+
+        if(counter > 50):
+            self.set_image("default")
+            self.snake = 0
+            return 0
+        
+        return counter + 1
     
     def get_roubado(self):
         return self.roubado
@@ -505,6 +527,7 @@ class TaylorSwift(Personagem):
             self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
         if(self.ghost): janela.blit(self.ghost_image, self.ghost_rect)
+        if(self.snake): janela.blit(self.snake_image, self.snake_rect)
         if(self.fire):
             for i in range(self.fire):
                 if self.fire == 3: break

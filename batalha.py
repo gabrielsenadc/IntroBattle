@@ -440,6 +440,7 @@ def turno(jogador, personagens, inimigos, clock, escolhas, tela):
                                     escolher_aliados = 1
                                     escolhas.selecao_aliados(personagens, jogador, 1)
                                 elif jogador.get_nome() == "Taylor Swift" and ataque:
+                                    animacao("ataque", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
                                     jogador.aliado_attack(inimigo, personagens, inimigos, clock, tela)
                                     jogador.ataque(inimigo)
                                     return True
