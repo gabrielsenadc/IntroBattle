@@ -20,6 +20,7 @@ largura_selecao = 200
 altura_seta = 40
 
 bg_image = bg_image = pygame.image.load("./imagens/background.jpg")
+title_image = pygame.image.load("./imagens/title.png")
 
 w = bg_image.get_width()
 bg_image = pygame.transform.scale_by(bg_image, 1024/w)
@@ -194,6 +195,28 @@ def menu(personagens, inimigos, janela, clock):
     ruivo = 0
     num = 0
     flag = 0
+    break_flag = 0
+
+    rect = pygame.Rect(((largura / 2) - (title_image.get_width() / 2) - 25, (altura / 2) - (title_image.get_height() / 2) - 25), (title_image.get_width() + 50 ,title_image.get_height() + 50))
+
+    while not(break_flag):
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                return False
+            if evento.type == pygame.KEYDOWN:
+                break_flag = 1
+
+        janela.fill((0, 0, 0))
+        janela.blit(bg_image, (0, 0))
+
+
+        pygame.draw.rect(janela, cor_jogador, rect)
+        janela.blit(title_image, ((largura / 2) - (title_image.get_width() / 2), (altura / 2) - (title_image.get_height() / 2)))
+
+        pygame.display.flip()
+        clock.tick(60)
+
+
     while num < 3:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
