@@ -252,27 +252,27 @@ class TomHiddleston(Personagem):
             dano = 1.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
             inimigo.recebe_dano(dano)
             
-
 class TaylorLautner(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 40, 20, 225, 20, "Back to December", 4)
 
         self.neve_image =  pygame.image.load(f"./imagens/neve.png")
         h = self.neve_image.get_height()
-        self.neve_image = pygame.transform.scale_by(self.neve_image, 225/h)
+        self.neve_image = pygame.transform.scale_by(self.neve_image, 40/h)
 
         self.neve_rect = []
         for i in range(4, 6):
             key = f"personagem{i}"
-            self.neve_rect.append((posicoes_jogo[key]["x"] - 30, posicoes_jogo[key]["y"]))
+            for j in range(5):
+                if(j%2 == 0): self.neve_rect.append((posicoes_jogo[key]["x"] + 25, posicoes_jogo[key]["y"] + 10 + (j * 25)))
+                else: self.neve_rect.append((posicoes_jogo[key]["x"] + 55, posicoes_jogo[key]["y"] + 10 + (j * 25)))
+                
         self.neve = 0
 
     def animacao_habilidade(self, counter):
-        if(counter == 1): self.neve = 1
-
-        if(counter == 30): self.neve = 2
+        if(counter%6 == 0): self.neve += 1
         
-        if(counter == 60):
+        if(counter == 65):
             self.neve = 0
             return 0
         
@@ -289,8 +289,7 @@ class TaylorLautner(Personagem):
             inimigo.congela()
             dano = 0.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
             inimigo.recebe_dano(dano)
-
-    
+  
 class TravisKelce(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 15, 40, 300, 5, "Touchdown", 4)
@@ -319,8 +318,25 @@ class EdSheeran(Personagem):
         self.plus_rect = self.plus_image.get_rect()
         self.plus = 0
 
+        self.skill_image = pygame.image.load(f"./imagens/{self.path}/skill.jpeg")
+        self.skill_image = pygame.transform.scale(self.skill_image, (1024, 768))
+        self.skill_rect = self.skill_image.get_rect()
+        self.skill = 0
+        self.alpha = 150
+
     def animacao_habilidade(self, counter):
-        return counter
+        self.skill = 1
+
+        self.alpha -= 20
+        if(self.alpha <= 10): self.alpha = 150
+
+        self.skill_image.set_alpha(self.alpha)
+
+        if counter > 50: 
+            self.skill = 0
+            return 0
+
+        return counter + 1
 
     def animacao_ataque(self, counter, x, y, x2, y2):
         if(counter == 1):
@@ -338,7 +354,7 @@ class EdSheeran(Personagem):
             self.subtract = 0
 
             self.plus_rect.x = x
-            self.plus_rect.y = y + 50
+            self.plus_rect.y = y + 25
             self.plus = 1
 
         if (counter >= 70):
@@ -358,6 +374,7 @@ class EdSheeran(Personagem):
         janela.blit(self.image, self.rect)
         if(self.subtract): janela.blit(self.subtract_image, self.subtract_rect)
         if(self.plus): janela.blit(self.plus_image, self.plus_rect)
+        if(self.skill): janela.blit(self.skill_image, self.skill_rect)
     
     def ataque(self, inimigo, aliado):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
@@ -418,6 +435,7 @@ class HarryStyles(Personagem):
         self.invisibilidade(2)
         aliado.invisibilidade(3)
 
+
 def animacao_JohnMayer(personagem, counter, x, y):
     if(counter == 1):
         personagem.ghost_rect.x = personagem.x
@@ -456,7 +474,7 @@ def animacao_JakeGyllenhaal(personagem, counter):
      
 class TaylorSwift(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 2, 2, 100, 2, "Don't Blame Me", 2)
+        super().__init__(nome, n, 33, 22, 180, 22, "Don't Blame Me", 2)
 
         self.roubado = ""
 
@@ -509,10 +527,10 @@ class TaylorSwift(Personagem):
             self.set_image("attack")
 
         
-        self.snake_rect.x += (x + 50 - self.x) / 50
-        self.snake_rect.y += (y + 25 - self.y) / 50
+        self.snake_rect.x += (x + 50 - self.x) / 70
+        self.snake_rect.y += (y - self.y) / 70
 
-        if(counter > 50):
+        if(counter > 70):
             self.set_image("default")
             self.snake = 0
             return 0
@@ -533,7 +551,6 @@ class TaylorSwift(Personagem):
                 if self.fire == 3: break
                 janela.blit(self.fire_image, self.fire_rect[i])
   
-
 class JohnMayer(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 35, 25, 225, 19, "", 2)

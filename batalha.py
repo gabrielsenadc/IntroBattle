@@ -246,8 +246,6 @@ class Tela():
         w = self.fundo.get_width()
         self.fundo = pygame.transform.scale(self.fundo, (1024, 850))
 
-        #self.fundo.set_alpha(110) 
-
 
     def desenha(self):
         self.janela.fill((0, 0, 0))
@@ -277,7 +275,10 @@ class Tela():
                 inimigo.desenhar(self.janela)
 
             for personagem in self.personagens:
-                personagem.desenhar(self.janela)
+                if atacante.get_nome() != personagem.get_nome(): personagem.desenhar(self.janela)
+
+            for personagem in self.personagens:
+                if atacante.get_nome() == personagem.get_nome(): personagem.desenhar(self.janela)
             
         self.escolhas.desenha(self.janela)
         self.vidas.desenha(self.janela)

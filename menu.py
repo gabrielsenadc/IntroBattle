@@ -19,8 +19,7 @@ altura_selecao = 200
 largura_selecao = 200
 altura_seta = 40
 
-bg_image = bg_image = pygame.image.load("./imagens/background.jpg")
-title_image = pygame.image.load("./imagens/title.png")
+bg_image = pygame.image.load("./imagens/background.jpg")
 
 w = bg_image.get_width()
 bg_image = pygame.transform.scale_by(bg_image, 1024/w)
@@ -197,6 +196,7 @@ def menu(personagens, inimigos, janela, clock):
     flag = 0
     break_flag = 0
 
+    title_image = pygame.image.load("./imagens/title.png")
     rect = pygame.Rect(((largura / 2) - (title_image.get_width() / 2) - 25, (altura / 2) - (title_image.get_height() / 2) - 25), (title_image.get_width() + 50 ,title_image.get_height() + 50))
 
     while not(break_flag):
