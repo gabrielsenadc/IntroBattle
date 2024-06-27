@@ -334,7 +334,7 @@ def ordena_turnos(personagens, inimigos):
 def turno_inimigo(inimigo, personagens, tela):
     tela.set_seta_printa_0()
     if inimigo.get_congelado() <= 0:
-        if(inimigo.get_turno() == 0 or inimigo.get_turno() == 2):
+        if(inimigo.get_turno() <= 2):
             alvo = get_personagem_menos_vida(personagens)
             animacao("ataque", inimigo, alvo.get_posicao_x(), alvo.get_posicao_y(), tela, 0, 0)
             inimigo.ataque(alvo)

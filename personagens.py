@@ -11,6 +11,13 @@ posicoes_jogo = {"personagem1": {"x": 150, "y": 10},
                  "personagem4": {"x": 800, "y": 15},
                  "personagem5": {"x": 800, "y": 325},}
 
+def atribui_imagem(nome, tamanho):
+    image = pygame.image.load(f"./imagens/{nome}")
+    h = image.get_height()
+    image = pygame.transform.scale_by(image, tamanho/h)
+
+    return image
+
 class Personagem(pygame.sprite.Sprite):
     """
     Propriedades:
@@ -62,6 +69,11 @@ class Personagem(pygame.sprite.Sprite):
 
         self.path = nome
 
+        self.fox_image = atribui_imagem("fox.png", 50)
+        self.fox_rect = self.fox_image.get_rect()
+        self.fox_rect.x = self.x
+        self.fox_rect.y = self.y
+
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
             self.set_image("attack")
@@ -84,11 +96,15 @@ class Personagem(pygame.sprite.Sprite):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
         inimigo.recebe_dano(dano)
 
-
-    def desenhar(self, janela):
+    def desenhar_invisivel(self, janela):
         if self.invisivel > 0:
             self.image.set_alpha(69) 
+            janela.blit(self.fox_image, self.fox_rect)
+
+
+    def desenhar(self, janela): 
         janela.blit(self.image, self.rect)
+        self.desenhar_invisivel(janela)
 
 
     ### Setters ###
@@ -226,13 +242,7 @@ def get_personagem_menos_vida(personagens):
     for personagem in personagens:
         if personagem.get_vida_atual() == menor_vida:
             return personagem
-    
-def atribui_imagem(nome, tamanho):
-    image = pygame.image.load(f"./imagens/{nome}")
-    h = image.get_height()
-    image = pygame.transform.scale_by(image, tamanho/h)
 
-    return image
 
 class TomHiddleston(Personagem):
     def __init__(self, nome, n):
@@ -287,6 +297,7 @@ class TaylorLautner(Personagem):
         if(self.neve):
             for i in range(self.neve):
                 janela.blit(self.neve_image, self.neve_rect[i])
+        self.desenhar_invisivel(janela)
     
     def habilidade(self, inimigos):
         for inimigo in inimigos:
@@ -322,15 +333,15 @@ class EdSheeran(Personagem):
         self.skill_image = pygame.transform.scale(self.skill_image, (1024, 768))
         self.skill_rect = self.skill_image.get_rect()
         self.skill = 0
-        self.alpha = 150
+        self.skill_image.set_alpha(150)
 
     def animacao_habilidade(self, counter):
         self.skill = 1
 
-        self.alpha -= 20
-        if(self.alpha <= 10): self.alpha = 150
+        alpha = self.skill_image.get_alpha() - 20
+        if(alpha <= 10): alpha = 150
 
-        self.skill_image.set_alpha(self.alpha)
+        self.skill_image.set_alpha(alpha)
 
         if counter > 50: 
             self.skill = 0
@@ -369,12 +380,11 @@ class EdSheeran(Personagem):
         return counter + 1
     
     def desenhar(self, janela):
-        if self.invisivel > 0:
-            self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
         if(self.subtract): janela.blit(self.subtract_image, self.subtract_rect)
         if(self.plus): janela.blit(self.plus_image, self.plus_rect)
         if(self.skill): janela.blit(self.skill_image, self.skill_rect)
+        self.desenhar_invisivel(janela)
     
     def ataque(self, inimigo, aliado):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
@@ -424,10 +434,9 @@ class HarryStyles(Personagem):
     
 
     def desenhar(self, janela):
-        if self.invisivel > 0:
-            self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
         if(self.glitter): janela.blit(self.glitter_image, self.glitter_rect)
+        self.desenhar_invisivel(janela)
     
     def habilidade(self, aliado):
         self.invisibilidade(2)
@@ -541,8 +550,6 @@ class TaylorSwift(Personagem):
         self.roubado = nome
     
     def desenhar(self, janela):
-        if self.invisivel > 0:
-            self.image.set_alpha(69) 
         janela.blit(self.image, self.rect)
         if(self.ghost): janela.blit(self.ghost_image, self.ghost_rect)
         if(self.snake): janela.blit(self.snake_image, self.snake_rect)
@@ -550,6 +557,7 @@ class TaylorSwift(Personagem):
             for i in range(self.fire):
                 if self.fire == 3: break
                 janela.blit(self.fire_image, self.fire_rect[i])
+        self.desenhar_invisivel(janela)
   
 class JohnMayer(Personagem):
     def __init__(self, nome, n):
@@ -636,7 +644,7 @@ class JakeGyllenhaal(Personagem):
 
             
 
-    def animacao_habilidade(self, counter, taylor):
+    def animacao_habilidade(self, counter):
         return animacao_JakeGyllenhaal(self, counter)
 
     def animacao_ataque(self, counter, x, y):
@@ -644,6 +652,10 @@ class JakeGyllenhaal(Personagem):
             self.fogo_rect.x = self.x
             self.fogo_rect.y = self.y + 25
             self.fogo = 1
+
+            self.fogo_image = atribui_imagem("fogo.png", 50)
+            a = numpy.arctan((y - self.y) / (self.x - x)) * 180 / 3.14
+            self.fogo_image = pygame.transform.rotate(self.fogo_image, a - 90)
 
             self.set_image("attack")
 
@@ -688,7 +700,7 @@ def animacao(tipo, atacante, alvo_x, alvo_y, tela, aliado_x, aliado_y):
             if atacante.get_nome() == "Ed Sheeran": counter = atacante.animacao_ataque(counter, alvo_x, alvo_y, aliado_x, aliado_y)
             else: counter = atacante.animacao_ataque(counter, alvo_x, alvo_y)
         if(tipo == "habilidade"): 
-            if atacante.get_nome() == "Jake Gyllenhaal": counter = atacante.animacao_habilidade(counter, 0)
+            if atacante.get_nome() == "Jake Gyllenhaal": counter = atacante.animacao_habilidade(counter)
             elif atacante.get_nome() == "John Mayer" or atacante.get_nome() == "Taylor Swift": counter = atacante.animacao_habilidade(counter, alvo_x, alvo_y)
             else: counter = atacante.animacao_habilidade(counter)
         if(counter == 1): break

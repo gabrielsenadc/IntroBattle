@@ -5,12 +5,12 @@ from personagens import *
 largura = 1024 
 altura = 768
 
-posicoes_selecao = {"Travis Kelce": {"x": (largura / 2) - 350, "y": 150},
-            "Taylor Swift": {"x": (largura / 2) - 100, "y": 150},
-            "Taylor Lautner": {"x": (largura / 2) + 150, "y": 150},
-            "Harry Styles": {"x": (largura / 2) - 225, "y": 400},
-            "Tom Hiddleston": {"x": (largura / 2) + 25, "y": 400},
-            "Ed Sheeran": {"x": (largura / 2) + 150, "y": 400}}
+posicoes_selecao = {"Travis Kelce": {"x": (largura / 2) - 350, "y": 100},
+            "Taylor Swift": {"x": (largura / 2) - 100, "y": 100},
+            "Taylor Lautner": {"x": (largura / 2) + 150, "y": 100},
+            "Harry Styles": {"x": (largura / 2) - 225, "y": 350},
+            "Tom Hiddleston": {"x": (largura / 2) + 25, "y": 350},
+            "Ed Sheeran": {"x": (largura / 2) + 150, "y": 350}}
 
 cor_fundo = (0, 0, 0)        # Preto
 cor_jogador = (255, 255, 255)  # Branco
@@ -18,6 +18,9 @@ cor_jogador = (255, 255, 255)  # Branco
 altura_selecao = 200
 largura_selecao = 200
 altura_seta = 40
+
+largura_descricao = 600
+altura_descricao = 150
 
 bg_image = pygame.image.load("./imagens/background.jpg")
 
@@ -89,6 +92,46 @@ class Seta():
     def escolhe_personagem(self, nome):
         self.escolhidos[nome] = 1
 
+class Descricao():
+    """
+    Propriedades:
+    """
+
+    def __init__(self, nome):
+        self.rect = pygame.Rect((largura/2 - largura_descricao/2, 600), (largura_descricao, altura_descricao))
+
+        fonte = pygame.font.Font(None, 36)
+        self.titulo = fonte.render(nome, True, cor_fundo)
+        self.rect_titulo = self.titulo.get_rect()
+        self.rect_titulo.x = self.rect.x + 20
+        self.rect_titulo.y = self.rect.y + 20
+
+        fonte = pygame.font.Font(None, 24)
+        if nome == "Taylor Swift": self.texto = fonte.render("Habilidade: Rouba a habilidade de algum inimigo", True, cor_fundo)
+        elif nome == "Taylor Lautner": self.texto = fonte.render("Habilidade: Congela os inimigos por dois turnos", True, cor_fundo)
+        elif nome == "Travis Kelce": self.texto = fonte.render("Habilidade: Inimigos só podem atacar ele por dois turnos", True, cor_fundo)
+        elif nome == "Ed Sheeran": self.texto = fonte.render("Habilidade: Rouba permanetemente os pontos de defesa dos inimigos", True, cor_fundo)
+        elif nome == "Harry Styles": self.texto = fonte.render("Habilidade: Torna ele e um aliado invisíveis por dois turnos", True, cor_fundo)
+        else: self.texto = fonte.render("Habilidade: Dano em área", True, cor_fundo)
+
+
+        self.rect_texto = self.texto.get_rect()
+        self.rect_texto.x = self.rect.x + 20
+        self.rect_texto.y = self.rect.y + 20 + 36
+
+        self.extra = 1
+
+        if nome == "Taylor Swift": self.texto_extra = fonte.render("Extra: Se Travis Kelce estiver no time, ele ataca junto", True, cor_fundo)
+        elif nome == "Travis Kelce": self.texto_extra = fonte.render("Extra: Se Taylor Swift estiver no time, ela ataca junto", True, cor_fundo)
+        elif nome == "Ed Sheeran": self.texto_extra = fonte.render("Extra: Seu ataque básico cura algum aliado", True, cor_fundo)
+        else: self.extra = 0
+
+    def desenhar(self, janela):
+        pygame.draw.rect(janela, cor_jogador, self.rect)
+        janela.blit(self.titulo, self.rect_titulo)
+        janela.blit(self.texto, self.rect_texto)
+        if self.extra: janela.blit(self.texto_extra, (self.rect_texto.x, self.rect_texto.y + 24))
+
 
 class Selecao(pygame.sprite.Sprite):
     """
@@ -119,11 +162,15 @@ class Selecao(pygame.sprite.Sprite):
         w = self.texto.get_width()
         self.texto_shift = (200 - w) / 2
         self.rect_texto.x = self.rect.x + self.texto_shift
+
+        self.descricao = Descricao(nome)
     
-    def desenha(self, janela):
+    def desenha(self, janela, seta):
         pygame.draw.rect(janela, cor_jogador, self.rect)
         janela.blit(self.image, self.rect_image)
         janela.blit(self.texto, (self.rect_texto.x ,self.rect_texto.y))
+
+        if seta.get_personagem() == self.nome: self.descricao.desenhar(janela)
 
     def atualizar(self, x, y):
         self.rect.x = x 
@@ -186,7 +233,7 @@ def seleciona_personagem(n, seta, personagens, selecoes):
 
 def desenha_menu(selecoes, seta, janela):
     for selecao in selecoes:
-        selecao.desenha(janela)
+        selecao.desenha(janela, seta)
     seta.desenha(janela)
 
 def menu(personagens, inimigos, janela, clock):
@@ -256,5 +303,6 @@ def menu(personagens, inimigos, janela, clock):
             for aliado in personagens:
                 if aliado.get_nome() == "Travis Kelce":
                     personagem.atribui_aliado(aliado)
+    
     
     return True
