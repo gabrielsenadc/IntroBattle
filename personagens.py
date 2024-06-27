@@ -497,9 +497,9 @@ class TaylorSwift(Personagem):
     def atribui_aliado(self, personagem):
         self.aliado = personagem
 
-    def aliado_attack(self, inimigo, clock, tela):
+    def aliado_attack(self, inimigo, tela):
         if self.aliado != 0:
-            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), clock, tela, 0, 0)
+            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), tela, 0, 0)
             self.aliado.ataque(inimigo)
 
     def animacao_habilidade(self, counter, x, y):
@@ -537,6 +537,9 @@ class TaylorSwift(Personagem):
     def get_roubado(self):
         return self.roubado
     
+    def set_roubado(self, nome):
+        self.roubado = nome
+    
     def desenhar(self, janela):
         if self.invisivel > 0:
             self.image.set_alpha(69) 
@@ -550,7 +553,7 @@ class TaylorSwift(Personagem):
   
 class JohnMayer(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 35, 25, 225, 19, "", 2)
+        super().__init__(nome, n, 35, 25, 225, 19, "Haunted", 2)
 
         self.turno = 0
 
@@ -595,8 +598,7 @@ class JohnMayer(Personagem):
         if(self.ghost): janela.blit(self.ghost_image, self.ghost_rect)
         if(self.raio): janela.blit(self.raio_image, self.raio_rect)
     
-    def habilidade(self, inimigos):
-        inimigo = get_personagem_menos_vida(inimigos)
+    def habilidade(self, inimigo):
         dano = self.dano * (50 / (50 + inimigo.get_defesa()))
         inimigo.recebe_dano(dano)
         inimigo.envenena()
@@ -616,7 +618,7 @@ class JohnMayer(Personagem):
     
 class JakeGyllenhaal(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 45, 15, 175, 13, "", 2)
+        super().__init__(nome, n, 45, 15, 175, 13, "Burning Red", 2)
 
         self.turno = 0
 
@@ -625,7 +627,7 @@ class JakeGyllenhaal(Personagem):
         self.fogo_rect = self.fogo_image.get_rect()
         self.fogo = 0
 
-        self.fire_image = atribui_imagem("fogo.png", 50)
+        self.fire_image = atribui_imagem("fogo.png", 225)
         self.fire_rect = []
         for i in range(5):
             key = f"personagem{i + 1}"
@@ -679,7 +681,7 @@ class JakeGyllenhaal(Personagem):
 
 
 
-def animacao(tipo, atacante, alvo_x, alvo_y, clock, tela, aliado_x, aliado_y):
+def animacao(tipo, atacante, alvo_x, alvo_y, tela, aliado_x, aliado_y):
     counter = 1
     while counter >= 1:
         if(tipo == "ataque"):
@@ -693,9 +695,5 @@ def animacao(tipo, atacante, alvo_x, alvo_y, clock, tela, aliado_x, aliado_y):
 
         tela.desenha_animacao(atacante)
 
-
-        # Atualizar a exibição
         pygame.display.flip()
-
-        # Definir a taxa de quadros
-        clock.tick(60)
+        tela.clock_tick()
