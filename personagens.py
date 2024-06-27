@@ -227,6 +227,12 @@ def get_personagem_menos_vida(personagens):
         if personagem.get_vida_atual() == menor_vida:
             return personagem
     
+def atribui_imagem(nome, tamanho):
+    image = pygame.image.load(f"./imagens/{nome}")
+    h = image.get_height()
+    image = pygame.transform.scale_by(image, tamanho/h)
+
+    return image
 
 class TomHiddleston(Personagem):
     def __init__(self, nome, n):
@@ -256,9 +262,7 @@ class TaylorLautner(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 40, 20, 225, 20, "Back to December", 4)
 
-        self.neve_image =  pygame.image.load(f"./imagens/neve.png")
-        h = self.neve_image.get_height()
-        self.neve_image = pygame.transform.scale_by(self.neve_image, 40/h)
+        self.neve_image =  atribui_imagem("neve.png", 40)
 
         self.neve_rect = []
         for i in range(4, 6):
@@ -306,15 +310,11 @@ class EdSheeran(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 25, 10, 120, 15, "End Game", 4)
 
-        self.subtract_image = pygame.image.load(f"./imagens/subtract.jpeg")
-        h = self.subtract_image.get_height()
-        self.subtract_image = pygame.transform.scale_by(self.subtract_image, 25/h)
+        self.subtract_image = atribui_imagem("subtract.jpeg", 25)
         self.subtract_rect = self.subtract_image.get_rect()
         self.subtract = 0
 
-        self.plus_image = pygame.image.load(f"./imagens/plus.jpeg")
-        h = self.plus_image.get_height()
-        self.plus_image = pygame.transform.scale_by(self.plus_image, 25/h)
+        self.plus_image = atribui_imagem("plus.jpeg", 25)
         self.plus_rect = self.plus_image.get_rect()
         self.plus = 0
 
@@ -395,9 +395,7 @@ class HarryStyles(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 35, 15, 150, 10, "I Know Places", 4)
 
-        self.glitter_image = pygame.image.load(f"./imagens/glitter.png")
-        h = self.glitter_image.get_height()
-        self.glitter_image = pygame.transform.scale_by(self.glitter_image, 50/h)
+        self.glitter_image = atribui_imagem("glitter.png", 50)
         self.glitter_image = pygame.transform.rotate(self.glitter_image, -90)
         self.glitter_rect = self.glitter_image.get_rect()
         self.glitter = 0
@@ -480,24 +478,18 @@ class TaylorSwift(Personagem):
 
         self.aliado = 0
 
-        self.ghost_image = pygame.image.load(f"./imagens/ghost.png")
-        h = self.ghost_image.get_height()
-        self.ghost_image = pygame.transform.scale_by(self.ghost_image, 150/h)
+        self.ghost_image = atribui_imagem("ghost.png", 150)
         self.ghost_rect = self.ghost_image.get_rect()
         self.ghost = 0
 
-        self.fire_image = pygame.image.load(f"./imagens/fogo.png")
-        h = self.fire_image.get_height()
-        self.fire_image = pygame.transform.scale_by(self.fire_image, 225/h)
+        self.fire_image = atribui_imagem("fogo.png", 225)
         self.fire_rect = []
         for i in range(4, 6):
             key = f"personagem{i}"
             self.fire_rect.append((posicoes_jogo[key]["x"], posicoes_jogo[key]["y"]))
         self.fire = 0
 
-        self.snake_image = pygame.image.load(f"./imagens/snake.png")
-        h = self.snake_image.get_height()
-        self.snake_image = pygame.transform.scale_by(self.snake_image, 100/h)
+        self.snake_image = atribui_imagem("snake.png", 100)
         self.snake_rect = self.snake_image.get_rect()
         self.snake = 0
 
@@ -505,9 +497,9 @@ class TaylorSwift(Personagem):
     def atribui_aliado(self, personagem):
         self.aliado = personagem
 
-    def aliado_attack(self, inimigo, personagens, inimigos, clock, tela):
+    def aliado_attack(self, inimigo, clock, tela):
         if self.aliado != 0:
-            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), personagens, inimigos, clock, tela, 0, 0)
+            animacao("ataque", self.aliado, inimigo.get_posicao_x(), inimigo.get_posicao_y(), clock, tela, 0, 0)
             self.aliado.ataque(inimigo)
 
     def animacao_habilidade(self, counter, x, y):
@@ -520,6 +512,11 @@ class TaylorSwift(Personagem):
 
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
+            self.snake_image = atribui_imagem("snake.png", 100)
+
+            a = numpy.arctan((y - self.y) / (self.x - x)) * 180 / 3.14
+            self.snake_image = pygame.transform.rotate(self.snake_image, a)
+
             self.snake_rect.x = self.x
             self.snake_rect.y = self.y + 25
             self.snake = 1
@@ -557,9 +554,7 @@ class JohnMayer(Personagem):
 
         self.turno = 0
 
-        self.ghost_image = pygame.image.load(f"./imagens/ghost.png")
-        h = self.ghost_image.get_height()
-        self.ghost_image = pygame.transform.scale_by(self.ghost_image, 150/h)
+        self.ghost_image = atribui_imagem("ghost.png", 150)
         self.ghost_rect = self.ghost_image.get_rect()
         self.ghost = 0
 
@@ -625,16 +620,12 @@ class JakeGyllenhaal(Personagem):
 
         self.turno = 0
 
-        self.fogo_image = pygame.image.load(f"./imagens/fogo.png")
-        h = self.fogo_image.get_height()
-        self.fogo_image = pygame.transform.scale_by(self.fogo_image, 50/h)
+        self.fogo_image = atribui_imagem("fogo.png", 50)
         self.fogo_image = pygame.transform.rotate(self.fogo_image, -90)
         self.fogo_rect = self.fogo_image.get_rect()
         self.fogo = 0
 
-        self.fire_image = pygame.image.load(f"./imagens/fogo.png")
-        h = self.fire_image.get_height()
-        self.fire_image = pygame.transform.scale_by(self.fire_image, 225/h)
+        self.fire_image = atribui_imagem("fogo.png", 50)
         self.fire_rect = []
         for i in range(5):
             key = f"personagem{i + 1}"
@@ -688,7 +679,7 @@ class JakeGyllenhaal(Personagem):
 
 
 
-def animacao(tipo, atacante, alvo_x, alvo_y, personagens, inimigos, clock, tela, aliado_x, aliado_y):
+def animacao(tipo, atacante, alvo_x, alvo_y, clock, tela, aliado_x, aliado_y):
     counter = 1
     while counter >= 1:
         if(tipo == "ataque"):
