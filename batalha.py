@@ -243,8 +243,6 @@ class Tela():
         self.clock = clock    
 
         self.fundo = pygame.image.load("./imagens/palco.png")
-
-        w = self.fundo.get_width()
         self.fundo = pygame.transform.scale(self.fundo, (1024, 850))
 
 
@@ -383,6 +381,9 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
     escolhas.selecao_habilidade(jogador)
     jogador.cooldown_habilidade()
     while executando:
+        
+        if jogador.get_vida_atual() <= 0:
+            return True
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -537,7 +538,7 @@ def batalha(personagens, inimigos, janela, clock):
         i = 0
         for inimigo in inimigos:
             i += 1
-        if i == 0: return False
+        if i == 0: return True
 
         i = 0
         for personagem in personagens:
