@@ -421,7 +421,7 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
                             animacao("habilidade", jogador, 0, 0, tela, 0, 0)
                             if jogador.get_nome() == "Ed Sheeran": 
                                 jogador.habilidade(inimigos, personagens)
-                                jogador.utiliza_habilidade()
+                                jogador.utiliza_habilidade(personagens)
                                 return True
                             if jogador.get_nome() == "Harry Styles": 
                                 escolhas.selecao_aliados(personagens, jogador, 0)
@@ -429,7 +429,7 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
                                 escolher_aliados = 1
                             else:
                                 jogador.habilidade(inimigos)
-                                jogador.utiliza_habilidade()
+                                jogador.utiliza_habilidade(personagens)
                                 return True
                         
                     if escolher_inimigos:
@@ -440,7 +440,7 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
                                     if ataque:
                                         animacao("habilidade", jogador, inimigo.get_posicao_x(), inimigo.get_posicao_y(), tela, 0, 0)
                                         jogador.habilidade(inimigo)
-                                        jogador.utiliza_habilidade()
+                                        jogador.utiliza_habilidade(personagens)
                                         return True
                                     
                                     jogador.habilidade_taylor(inimigo)
@@ -453,7 +453,7 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
                                     else:
                                         animacao("habilidade", jogador, 0, 0, tela, 0, 0)
                                         jogador.habilidade(inimigos)
-                                        jogador.utiliza_habilidade()
+                                        jogador.utiliza_habilidade(personagens)
                                         return True
                                     
                                 elif jogador.get_nome() == "Ed Sheeran":
@@ -483,7 +483,7 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
                                 else: 
                                     animacao("habilidade", jogador, 0, 0, tela, 0, 0)
                                     jogador.habilidade(personagem)
-                                    jogador.utiliza_habilidade()
+                                    jogador.utiliza_habilidade(personagens)
                                 return True
                         
 

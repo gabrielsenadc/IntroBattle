@@ -164,7 +164,12 @@ class Personagem(pygame.sprite.Sprite):
     def cooldown_habilidade(self):
         self.cooldown -= 1
 
-    def utiliza_habilidade(self):
+    def atrasa_habilidade(self):
+        self.cooldown += 1
+
+    def utiliza_habilidade(self, personagens):
+        for personagem in personagens:
+            if personagem.get_nome() != self.get_nome(): personagem.atrasa_habilidade()
         self.cooldown = self.tempo_cooldown
 
     def set_ruivo(self):
@@ -270,7 +275,7 @@ class TomHiddleston(Personagem):
             
 class TaylorLautner(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 40, 20, 225, 20, "Back to December", 4)
+        super().__init__(nome, n, 25, 20, 225, 20, "Back to December", 4)
 
         self.neve_image =  atribui_imagem("neve.png", 40)
 
@@ -403,7 +408,7 @@ class EdSheeran(Personagem):
 
 class HarryStyles(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 35, 15, 150, 10, "I Know Places", 4)
+        super().__init__(nome, n, 25, 15, 150, 10, "I Know Places", 4)
 
         self.glitter_image = atribui_imagem("glitter.png", 50)
         self.glitter_image = pygame.transform.rotate(self.glitter_image, -90)
@@ -481,7 +486,7 @@ def animacao_JakeGyllenhaal(personagem, counter):
      
 class TaylorSwift(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 33, 22, 180, 22, "Don't Blame Me", 2)
+        super().__init__(nome, n, 33, 13, 180, 22, "Don't Blame Me", 2)
 
         self.roubado = ""
 
@@ -563,7 +568,7 @@ class JohnMayer(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 35, 25, 225, 19, "Haunted", 2)
 
-        self.turno = 0
+        self.turno = 1
 
         self.ghost_image = atribui_imagem("ghost.png", 150)
         self.ghost_rect = self.ghost_image.get_rect()
@@ -626,7 +631,7 @@ class JohnMayer(Personagem):
     
 class JakeGyllenhaal(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 45, 15, 175, 13, "Burning Red", 2)
+        super().__init__(nome, n, 45, 22, 175, 13, "Burning Red", 2)
 
         self.turno = 0
 
