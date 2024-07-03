@@ -543,10 +543,21 @@ def batalha(personagens, inimigos, janela, clock):
         i = 0
         for personagem in personagens:
             i += 1
-        if i == 0: return False
+        if i == 0: return True
                 
 
         tela.desenha()
 
         pygame.display.flip()
         clock.tick(60)
+
+def analisa_vitoria(personagens, inimigos):
+    i = 0
+    for inimigo in inimigos:
+        i += 1
+    if i == 0: return True
+
+    i = 0
+    for personagem in personagens:
+        i += 1
+    if i == 0: return False

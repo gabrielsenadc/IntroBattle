@@ -36,8 +36,9 @@ won_rect = pygame.Rect(((largura / 2) - (won_image.get_width() / 2) - 25, (altur
 clock = pygame.time.Clock()
 executando = menu(personagens, inimigos, janela, clock)
 if executando == True: 
-    vitoria = batalha(personagens, inimigos, janela, clock)
+    executando = batalha(personagens, inimigos, janela, clock)
     while executando:
+        vitoria = analisa_vitoria(personagens, inimigos)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:

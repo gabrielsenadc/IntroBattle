@@ -162,7 +162,7 @@ class Personagem(pygame.sprite.Sprite):
             self.defesa /= 2
 
     def cooldown_habilidade(self):
-        self.cooldown -= 1
+        if self.cooldown > 0: self.cooldown -= 1
 
     def atrasa_habilidade(self):
         self.cooldown += 1
