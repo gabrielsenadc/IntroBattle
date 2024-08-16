@@ -53,6 +53,8 @@ class Seta():
                            "Harry Styles": 0,
                            "Tom Hiddleston": 0,
                            "Ed Sheeran": 0}
+        
+        self.ruivo = 0
 
     def atualiza(self, dir, ruivo, posicoes_selecao):
         if dir == pygame.K_LEFT:
@@ -75,9 +77,10 @@ class Seta():
                 self.rect.y -= 250
                 if(ruivo == 0): self.rect.x -= 125
 
-    def atualiza_ruivo(self, posicoes_selecao):
+    def atualiza_ruivo(self, posicoes_selecao, flag):
         self.rect.x = posicoes_selecao["Ed Sheeran"]["x"] + self.shift
         self.rect.y = posicoes_selecao["Ed Sheeran"]["y"] - altura_seta
+        self.ruivo = flag
 
     def desenha(self, janela):
         janela.blit(self.image, self.rect)
@@ -85,7 +88,9 @@ class Seta():
     def get_personagem(self):
         for key in posicoes_selecao.keys():
             if(self.rect.x - self.shift == posicoes_selecao[key]["x"] and self.rect.y + altura_seta == posicoes_selecao[key]["y"]):
-                if self.escolhidos[key] == 0: return key
+                if self.escolhidos[key] == 0:
+                    if key == "Ed Sheeran" and self.ruivo == 12: return "Sabrina Carpenter"
+                    return key
       
         return "ninguem"
     
@@ -154,7 +159,8 @@ class Selecao(pygame.sprite.Sprite):
         self.rect_image.y = y
         self.rect_image.x = self.rect.x + self.imagem_shift
 
-        fonte = pygame.font.Font(None, 36)
+        if nome == "Sabrina Carpenter": fonte = pygame.font.Font(None, 30)
+        else: fonte = pygame.font.Font(None, 36)
         self.texto = fonte.render(nome, True, cor_fundo)
         self.rect_texto = self.texto.get_rect()
         self.rect_texto.y = self.rect_image.y + 170
@@ -202,12 +208,23 @@ def verifica_ruivo(evento, flag):
         elif evento.key == pygame.K_i and flag == 2: flag = 3
         elif evento.key == pygame.K_v and flag == 3: flag = 4
         elif evento.key == pygame.K_o and flag == 4: flag = 5
+
+        elif evento.key == pygame.K_p: flag = 7
+        elif evento.key == pygame.K_l and flag == 7: flag = 8
+        elif evento.key == pygame.K_e and flag == 8: flag = 9
+        elif evento.key == pygame.K_a and flag == 9: flag = 10
+        elif evento.key == pygame.K_s and flag == 10: flag = 11
+        elif evento.key == pygame.K_e and flag == 11: flag = 12
+
         else: flag = 0
+
+    
 
     return flag
 
-def cria_EdSheeran(selecoes, posicoes_selecao):
-    selecao6 = Selecao(posicoes_selecao["Ed Sheeran"]["x"], posicoes_selecao["Ed Sheeran"]["y"], "Ed Sheeran")
+def cria_personagem(flag, selecoes, posicoes_selecao):
+    if flag == 5: selecao6 = Selecao(posicoes_selecao["Ed Sheeran"]["x"], posicoes_selecao["Ed Sheeran"]["y"], "Ed Sheeran")
+    if flag == 12: selecao6 = Selecao(posicoes_selecao["Ed Sheeran"]["x"], posicoes_selecao["Ed Sheeran"]["y"], "Sabrina Carpenter")
     selecoes.add(selecao6)
     posicoes_selecao["Harry Styles"]["x"] = (largura / 2) - 350
     posicoes_selecao["Tom Hiddleston"]["x"] = (largura / 2) - 100
@@ -274,10 +291,10 @@ def menu(personagens, inimigos, janela, clock):
                 if evento.key == pygame.K_z:
                     num = seleciona_personagem(num, seta, personagens, selecoes)
         
-        if(flag == 5): 
-            flag = cria_EdSheeran(selecoes, posicoes_selecao)
+        if(flag == 5 or flag == 12): 
+            seta.atualiza_ruivo(posicoes_selecao, flag)
+            flag = cria_personagem(flag, selecoes, posicoes_selecao)
             ruivo = 1
-            seta.atualiza_ruivo(posicoes_selecao)
 
         # Preencher a janela com a cor de fundo
         janela.fill((0, 0, 0))

@@ -406,6 +406,10 @@ class EdSheeran(Personagem):
         for aliado in aliados:
             aliado.aumenta_defesa(defesa / 3)
 
+class SabrinaCarpenter(Personagem):
+    def __init__(self, nome, n):
+        super().__init__(nome, n, 30, 15, 200, 25, "Tornado Warnings", 2)
+
 class HarryStyles(Personagem):
     def __init__(self, nome, n):
         super().__init__(nome, n, 25, 15, 150, 10, "I Know Places", 4)
