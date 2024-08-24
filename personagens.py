@@ -408,7 +408,94 @@ class EdSheeran(Personagem):
 
 class SabrinaCarpenter(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 30, 15, 200, 25, "Tornado Warnings", 2)
+        super().__init__(nome, n, 25, 15, 150, 23, "Tornado Warnings", 2)
+
+        self.tornado_image = pygame.image.load(f"./imagens/tornado.png")
+        self.tornado_image = pygame.transform.scale(self.tornado_image, (200, 600))
+        self.tornado_rect = self.tornado_image.get_rect()
+        self.tornado = 0
+
+        self.feather_image = atribui_imagem("feather.png", 50)
+        self.feather_rect = self.feather_image.get_rect()
+        self.feather = 0
+
+        self.email_image = atribui_imagem("email.png", 40)
+        self.email_rect = self.email_image.get_rect()
+        self.email = 0
+
+        self.type = 0
+
+
+    def animacao_ataque(self, counter, x, y):
+        if self.type % 2 == 0:
+            if(counter == 1):
+                self.feather_rect.x = self.x
+                self.feather_rect.y = self.y + 25
+                self.feather = 1
+
+                self.feather_image = atribui_imagem("feather.png", 50)
+                a = numpy.arctan((y - self.y) / (self.x - x)) * 180 / 3.14
+                self.feather_image = pygame.transform.rotate(self.feather_image, a - 40)
+
+
+            
+            self.feather_rect.x += (x + 50 - self.x) / 100
+            self.feather_rect.y += (y - self.y) / 100
+
+            if(counter > 100):
+                self.feather = 0
+                self.type += 1
+                return 0
+
+        else:
+            if(counter == 1):
+                self.email_rect.x = self.x
+                self.email_rect.y = self.y + 25
+                self.email = 1
+
+                self.email_image = atribui_imagem("email.png", 40)
+                a = numpy.arctan((y - self.y) / (self.x - x)) * 180 / 3.14
+                self.email_image = pygame.transform.rotate(self.email_image, a)
+
+
+            
+            self.email_rect.x += (x + 50 - self.x) / 70
+            self.email_rect.y += (y - self.y) / 70
+
+            if(counter > 70):
+                self.email = 0
+                self.type += 1
+                return 0
+        
+        return counter + 1
+
+    def animacao_habilidade(self, counter):
+        if counter == 1:
+            self.tornado_rect.x = posicoes_jogo["personagem4"]["x"] - 50
+            self.tornado_rect.y = posicoes_jogo["personagem4"]["y"] - 10
+
+            self.tornado = 1
+
+        if (counter // 10) % 2 == 0: self.tornado_rect.x += 5
+        else: self.tornado_rect.x -= 5
+
+        if counter >= 70:
+            self.tornado = 0
+            return 0
+
+        return counter + 1
+        
+    def habilidade(self, inimigos):
+        for inimigo in inimigos:
+            dano = 1.5 * self.dano * (50 / (50 + inimigo.get_defesa()))
+            inimigo.recebe_dano(dano)
+
+    def desenhar(self, janela):
+        janela.blit(self.image, self.rect)
+        if(self.tornado): janela.blit(self.tornado_image, self.tornado_rect)
+        if(self.feather): janela.blit(self.feather_image, self.feather_rect)
+        if(self.email): janela.blit(self.email_image, self.email_rect)
+        self.desenhar_invisivel(janela)
 
 class HarryStyles(Personagem):
     def __init__(self, nome, n):
