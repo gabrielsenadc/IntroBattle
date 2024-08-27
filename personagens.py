@@ -247,6 +247,8 @@ def get_personagem_menos_vida(personagens):
     for personagem in personagens:
         if personagem.get_vida_atual() == menor_vida:
             return personagem
+        
+    return 0
 
 
 class TomHiddleston(Personagem):
@@ -430,7 +432,7 @@ class EdSheeran(Personagem):
 
 class SabrinaCarpenter(Personagem):
     def __init__(self, nome, n):
-        super().__init__(nome, n, 25, 15, 150, 23, "Tornado Warnings", 2)
+        super().__init__(nome, n, 25, 15, 175, 23, "Tornado Warnings", 2)
 
         self.tornado_image = pygame.image.load(f"./imagens/tornado.png")
         self.tornado_image = pygame.transform.scale(self.tornado_image, (200, 600))
@@ -457,7 +459,7 @@ class SabrinaCarpenter(Personagem):
 
                 self.feather_image = atribui_imagem("feather.png", 50)
                 a = numpy.arctan((y - self.y) / (self.x - x)) * 180 / 3.14
-                self.feather_image = pygame.transform.rotate(self.feather_image, a - 40)
+                self.feather_image = pygame.transform.rotate(self.feather_image, a)
 
 
             
@@ -492,6 +494,10 @@ class SabrinaCarpenter(Personagem):
         return counter + 1
 
     def animacao_habilidade(self, counter):
+        if counter == 1: 
+            pygame.mixer.music.load("music/tornado_warnings.mp3")
+            pygame.mixer.music.play()
+
         if counter == 1:
             self.tornado_rect.x = posicoes_jogo["personagem4"]["x"] - 50
             self.tornado_rect.y = posicoes_jogo["personagem4"]["y"] - 10
@@ -501,7 +507,7 @@ class SabrinaCarpenter(Personagem):
         if (counter // 10) % 2 == 0: self.tornado_rect.x += 5
         else: self.tornado_rect.x -= 5
 
-        if counter >= 70:
+        if counter >= 100:
             self.tornado = 0
             return 0
 
@@ -577,10 +583,10 @@ def animacao_JohnMayer(personagem, counter, x, y):
         personagem.set_image("attack")
 
     
-    personagem.ghost_rect.x += (x + 50 - personagem.x) / 50
-    personagem.ghost_rect.y += (y - personagem.y - 65) / 50
+    personagem.ghost_rect.x += (x + 50 - personagem.x) / 130
+    personagem.ghost_rect.y += (y - personagem.y - 65) / 130
 
-    if(counter > 50):
+    if(counter > 130):
         personagem.set_image("default")
         personagem.ghost = 0
         return 0
@@ -592,13 +598,15 @@ def animacao_JakeGyllenhaal(personagem, counter):
         personagem.set_image("skill")
         personagem.fire = 1
 
-    if(counter == 20): personagem.fire = 2
+    if(counter == 50): personagem.fire = 2
 
-    if(counter == 40): personagem.fire = 3
+    if(counter == 100): personagem.fire = 3
 
-    if(counter == 60):
+    if(counter == 150):
         personagem.set_image("default")
         personagem.fire = 0
+    
+    if(counter == 200):
         return 0
     
     return counter + 1
@@ -637,6 +645,9 @@ class TaylorSwift(Personagem):
             self.aliado.ataque(inimigo)
 
     def animacao_habilidade(self, counter, x, y):
+        if counter == 1: 
+            pygame.mixer.music.load("music/dont_blame_me.mp3")
+            pygame.mixer.music.play()
         if self.roubado == "John Mayer": return animacao_JohnMayer(self, counter, x, y)
         if self.roubado == "Jake Gyllenhaal": return animacao_JakeGyllenhaal(self, counter)
     
@@ -699,6 +710,9 @@ class JohnMayer(Personagem):
 
 
     def animacao_habilidade(self, counter, x, y):
+        if counter == 1: 
+            pygame.mixer.music.load("music/haunted.mp3")
+            pygame.mixer.music.play()
         return animacao_JohnMayer(self, counter, x, y)
     
     def animacao_ataque(self, counter, x, y):
@@ -770,6 +784,9 @@ class JakeGyllenhaal(Personagem):
             
 
     def animacao_habilidade(self, counter):
+        if counter == 1: 
+            pygame.mixer.music.load("music/red.mp3")
+            pygame.mixer.music.play()
         return animacao_JakeGyllenhaal(self, counter)
 
     def animacao_ataque(self, counter, x, y):
