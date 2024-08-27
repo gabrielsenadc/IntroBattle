@@ -412,15 +412,15 @@ def turno(jogador, personagens, inimigos, escolhas, tela):
                             escolhas.selecao_inimigos(inimigos, 1)
                             escolher_inimigos = 1
                             habilidade = 1
+                        elif jogador.get_nome() == "Harry Styles": 
+                            escolhas.selecao_aliados(personagens, jogador, 0)
+                            escolher_aliados = 1
                         else: 
                             animacao("habilidade", jogador, 0, 0, tela, 0, 0)
                             if jogador.get_nome() == "Ed Sheeran": 
                                 jogador.habilidade(inimigos, personagens)
                                 jogador.utiliza_habilidade(personagens)
                                 return True
-                            if jogador.get_nome() == "Harry Styles": 
-                                escolhas.selecao_aliados(personagens, jogador, 0)
-                                escolher_aliados = 1
                             else:
                                 jogador.habilidade(inimigos)
                                 jogador.utiliza_habilidade(personagens)

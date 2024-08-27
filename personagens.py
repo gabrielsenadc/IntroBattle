@@ -254,6 +254,10 @@ class TomHiddleston(Personagem):
         super().__init__(nome, n, 30, 15, 200, 25, "Getaway Car", 2)
 
     def animacao_habilidade(self, counter):
+        if counter == 1: 
+            pygame.mixer.music.load("music/getaway_car.mp3")
+            pygame.mixer.music.play()
+
         if(counter == 1): 
             self.rect.x = 350
             self.rect.y = 175
@@ -264,6 +268,8 @@ class TomHiddleston(Personagem):
             self.rect.x = self.x
             self.rect.y = self.y
             self.set_image("default")
+        
+        if counter > 200:
             return 0
 
         return counter + 1
@@ -289,9 +295,13 @@ class TaylorLautner(Personagem):
         self.neve = 0
 
     def animacao_habilidade(self, counter):
-        if(counter%6 == 0): self.neve += 1
+        if counter == 1: 
+            pygame.mixer.music.load("music/back_to_december.mp3")
+            pygame.mixer.music.play()
+
+        if(counter%17 == 0): self.neve += 1
         
-        if(counter == 65):
+        if(counter == 200):
             self.neve = 0
             return 0
         
@@ -301,6 +311,7 @@ class TaylorLautner(Personagem):
         janela.blit(self.image, self.rect)
         if(self.neve):
             for i in range(self.neve):
+                if self.neve > len(self.neve_rect): break
                 janela.blit(self.neve_image, self.neve_rect[i])
         self.desenhar_invisivel(janela)
     
@@ -315,7 +326,14 @@ class TravisKelce(Personagem):
         super().__init__(nome, n, 15, 40, 300, 5, "Touchdown", 4)
 
     def animacao_habilidade(self, counter):
-        return counter
+        if counter == 1: 
+            pygame.mixer.music.load("music/touchdown.mp3")
+            pygame.mixer.music.play()
+
+        if counter == 50:
+            return 0
+
+        return counter + 1
     
     def habilidade(self, inimigos):
         self.chamativo = 2
@@ -341,6 +359,10 @@ class EdSheeran(Personagem):
         self.skill_image.set_alpha(150)
 
     def animacao_habilidade(self, counter):
+        if counter == 1: 
+            pygame.mixer.music.load("music/endgame.mp3")
+            pygame.mixer.music.play()
+
         self.skill = 1
 
         alpha = self.skill_image.get_alpha() - 20
@@ -348,7 +370,7 @@ class EdSheeran(Personagem):
 
         self.skill_image.set_alpha(alpha)
 
-        if counter > 50: 
+        if counter > 250: 
             self.skill = 0
             return 0
 
@@ -507,7 +529,14 @@ class HarryStyles(Personagem):
         self.glitter = 0
 
     def animacao_habilidade(self, counter):
-        return counter
+        if counter == 1: 
+            pygame.mixer.music.load("music/i_know_places.mp3")
+            pygame.mixer.music.play()
+        
+        if counter > 200:
+            return 0
+        
+        return counter + 1
 
     def animacao_ataque(self, counter, x, y):
         if(counter == 1):
